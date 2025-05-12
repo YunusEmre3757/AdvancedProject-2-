@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Doğrulama</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Email Adresinizi Doğrulayın</h2>
+        </div>
+        
+        <p>Merhaba <span th:text="${name}">İsim</span>,</p>
+        
+        <p>Hesabınızı oluşturduğunuz için teşekkür ederiz. Email adresinizi doğrulamak için aşağıdaki bağlantıya tıklayın:</p>
+        
+        <p style="text-align: center;">
+            <a th:href="${verificationLink}" class="button">Email Adresimi Doğrula</a>
+        </p>
+        
+        <p>Ya da aşağıdaki bağlantıyı tarayıcınıza kopyalayabilirsiniz:</p>
+        <p th:text="${verificationLink}" style="word-break: break-all;">https://example.com/verify</p>
+        
+        <p>Bu bağlantı 24 saat boyunca geçerlidir.</p>
+        
+        <p>Bu işlemi siz yapmadıysanız, lütfen bu email'i dikkate almayın.</p>
+        
+        <div class="footer">
+            <p>&copy; 2023 Uygulama Adı. Tüm hakları saklıdır.</p>
+        </div>
+    </div>
+</body>
+</html> 
