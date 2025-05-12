@@ -1,0 +1,36 @@
+<div class="verification-dialog">
+ <h2 mat-dialog-title>{{ data.type === 'current' ? 'Mevcut E-posta Doğrulama' : 'Yeni E-posta Doğrulama' }}</h2>
+ 
+ <mat-dialog-content>
+   <p>Lütfen e-postanıza gönderilen 6 haneli doğrulama kodunu giriniz.</p>
+   
+   <div class="verification-code-inputs">
+     <ng-container *ngFor="let digit of verificationCodeArray; let i = index">
+       <input
+         type="text"
+         maxlength="1"
+         [attr.data-index]="i"
+         [(ngModel)]="verificationCodeArray[i]"
+         (keypress)="onKeyPress($event, i)"
+         (keydown)="onKeyDown($event, i)"
+         class="verification-input"
+         inputmode="numeric"
+         pattern="\d*"
+         autocomplete="off"
+         [attr.aria-label]="'Doğrulama kodu hanesi ' + (i + 1)"
+       >
+     </ng-container>
+   </div>
+ </mat-dialog-content>
+
+ <mat-dialog-actions align="end">
+   <button mat-button (click)="onCancel()" color="warn">
+     <mat-icon>close</mat-icon>
+     İptal
+   </button>
+   <button mat-raised-button color="primary" (click)="onSubmit()">
+     <mat-icon>check</mat-icon>
+     Doğrula
+   </button>
+ </mat-dialog-actions>
+</div> 

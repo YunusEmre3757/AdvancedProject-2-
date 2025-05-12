@@ -1,0 +1,231 @@
+<!-- Admin Orders Management -->
+<div class="admin-container">
+  <!-- Sidebar - Now Fixed -->
+  <div class="admin-sidebar">
+    <div class="admin-logo">
+      <h2>Admin Panel</h2>
+    </div>
+    <div class="admin-nav">
+      <div class="admin-user-info">
+        <div class="admin-avatar">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="admin-user-details">
+          <h4>Admin</h4>
+          <span>Yönetici</span>
+        </div>
+      </div>
+      <ul class="admin-menu">
+        <li>
+          <a routerLink="/admin/dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/products">
+            <i class="fas fa-box"></i>
+            <span>Ürünler</span>
+          </a>
+        </li>
+        <li class="active">
+          <a routerLink="/admin/orders">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Siparişler</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/users">
+            <i class="fas fa-users"></i>
+            <span>Kullanıcılar</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pending-users">
+            <i class="fas fa-user-clock"></i>
+            <span>Bekleyen Kullanıcılar</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/stores">
+            <i class="fas fa-store"></i>
+            <span>Mağazalar</span>
+          </a>
+        </li>
+      
+      </ul>
+      <div class="admin-logout">
+        <a href="#" (click)="logout($event)">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Çıkış</span>
+        </a>
+      </div>     
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <div class="admin-header">
+      <h1>Sipariş Yönetimi</h1>
+      <div class="admin-actions">
+        <div class="admin-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Sipariş ara..." 
+                [(ngModel)]="searchQuery" 
+                (keyup.enter)="searchOrders()">
+        </div>
+        <button class="btn-primary" (click)="searchOrders()">
+          <i class="fas fa-search"></i> Ara
+        </button>
+        <select class="filter-dropdown" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="admin-content">
+      <!-- Error Alert -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+      </div>
+      
+      <!-- Orders Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Sipariş Listesi</h3>
+        </div>
+        <div class="card-body">
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Sipariş No</th>
+                  <th>Müşteri</th>
+                  <th>Tarih</th>
+                  <th>Tutar</th>
+                  <th>Durum</th>
+                  <th>Ödeme</th>
+                  <th>İşlemler</th>
+                </tr>
+              </thead>
+              <tbody *ngIf="!loading">
+                <tr *ngFor="let order of orders" class="fade-in">
+                  <td data-label="Sipariş No">
+                    <div class="order-info">
+                      <span class="order-number">#{{ order.id }}</span>
+                      <span class="order-number">{{ order.orderNumber }}</span>
+                    </div>
+                  </td>
+                  <td data-label="Müşteri">
+                    <div class="customer-info">
+                      <span class="customer-name">{{ order.userName || order.customerName || 'Customer' }}</span>
+                      <span class="customer-email">{{ order.userEmail || order.customerEmail }}</span>
+                      <span *ngIf="order.userPhoneNumber" class="customer-phone">
+                        <i class="fas fa-phone-alt"></i> {{ order.userPhoneNumber }}
+                      </span>
+                      <span *ngIf="order.userId" class="customer-id">
+                        ID: {{ order.userId }}
+                      </span>
+                    </div>
+                  </td>
+                  <td data-label="Tarih">
+                    <div class="date-info">
+                      <div class="date-created">
+                        <i class="fas fa-calendar-plus"></i> {{ formatDate(order.createdAt) }}
+                      </div>
+                      <div class="date-updated" *ngIf="order.updatedAt && order.updatedAt !== order.createdAt">
+                        <small><i class="fas fa-sync-alt"></i> Updated: {{ formatDate(order.updatedAt) }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Tutar">
+                    <span class="price">{{ calculateOrderTotal(order) | currency:'TRY':'symbol':'1.2-2' }}</span>
+                  </td>
+                  <td data-label="Durum">
+                    <span class="status-badge" 
+                          [ngClass]="{
+                            'pending': order.status === 'PENDING',
+                            'processing': order.status === 'PROCESSING',
+                            'shipping': order.status === 'SHIPPING',
+                            'delivered': order.status === 'DELIVERED',
+                            'completed': order.status === 'COMPLETED',
+                            'cancelled': order.status === 'CANCELLED'
+                          }">
+                      {{ getStatusLabel(order.status) }}
+                    </span>
+                  </td>
+                  <td data-label="Ödeme">
+                    <span *ngIf="getPaymentStatusText(order)" class="payment-badge" 
+                          [ngClass]="{
+                            'paid': order.paymentStatus === 'PAID',
+                            'failed': order.paymentStatus === 'FAILED',
+                            'refunded': order.paymentStatus === 'REFUNDED' || order.refundStatus === 'SUCCEEDED'
+                          }">
+                      {{ getPaymentStatusText(order) }}
+                    </span>
+                    <div *ngIf="order.status === 'CANCELLED' && order.refundStatus" class="refund-info">
+                      <small><i class="fas" [ngClass]="{'fa-check-circle': order.refundStatus === 'SUCCEEDED', 'fa-clock': order.refundStatus === 'PENDING', 'fa-times-circle': order.refundStatus === 'FAILED'}"></i> 
+                        Refund status: {{ order.refundStatus }}
+                      </small>
+                    </div>
+                  </td>
+                  <td data-label="İşlemler">
+                    <div class="action-buttons">
+                      <button class="btn-sm btn-success" *ngIf="order.status === 'PENDING'"
+                              (click)="updateOrderStatus(order.id, 'PROCESSING')"
+                              title="Siparişi işleme al">
+                        <i class="fas fa-cogs"></i> İşleme
+                      </button>
+                      <button class="btn-sm btn-primary" *ngIf="order.status === 'PROCESSING'"
+                              (click)="updateOrderStatus(order.id, 'SHIPPING')"
+                              title="Siparişi kargoya ver">
+                        <i class="fas fa-shipping-fast"></i> Kargola
+                      </button>
+                      <button class="btn-sm btn-success" *ngIf="order.status === 'SHIPPING'"
+                              (click)="updateOrderStatus(order.id, 'DELIVERED')"
+                              title="Siparişi teslim edildi olarak işaretle">
+                        <i class="fas fa-check-circle"></i> Teslim
+                      </button>
+                      <button class="btn-sm btn-danger" *ngIf="order.status === 'PENDING' || order.status === 'PROCESSING' || order.status === 'SHIPPING'"
+                              (click)="updateOrderStatus(order.id, 'CANCELLED')"
+                              title="Siparişi iptal et ve iade işlemi başlat">
+                        <i class="fas fa-times-circle"></i> İptal
+                      </button>
+                      <button class="btn-sm btn-danger" title="Siparişi tamamen sil"
+                              (click)="deleteOrder(order.id)">
+                        <i class="fas fa-trash"></i> Sil
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody *ngIf="loading">
+                <tr>
+                  <td colspan="7">
+                    <div class="loading-spinner">
+                      <i class="fas fa-spinner fa-spin"></i>
+                      <p>Siparişler yükleniyor...</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody *ngIf="!loading && orders.length === 0">
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state">
+                      <i class="fas fa-box-open"></i>
+                      <p>Sipariş bulunamadı</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

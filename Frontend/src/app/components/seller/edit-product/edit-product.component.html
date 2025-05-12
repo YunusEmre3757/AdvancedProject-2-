@@ -1,0 +1,537 @@
+<div class="edit-product-container">
+  <div class="header-section">
+    <div class="title-actions">
+      <button class="back-button" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Dashboard'a Dön
+      </button>
+      <h1>{{ storeId ? 'Mağaza Ürünleri' : 'Ürünlerim' }}</h1>
+    </div>
+    
+    <div class="user-actions">
+      <button class="logout-button" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+      </button>
+    </div>
+  </div>
+  
+  <!-- Filters and search section -->
+  <div class="filters-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        placeholder="Ürün ara..." 
+        (keyup.enter)="searchProducts()">
+      <button (click)="searchProducts()">Ara</button>
+    </div>
+    
+    <div class="filters">
+      <div class="filter-group">
+        <label>Kategori:</label>
+        <select [(ngModel)]="categoryFilter">
+          <option value="">Tüm Kategoriler</option>
+          <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Stok:</label>
+        <select [(ngModel)]="stockFilter">
+          <option value="all">Tümü</option>
+          <option value="instock">Stokta</option>
+          <option value="outofstock">Tükenmiş</option>
+        </select>
+      </div>
+      
+      <button class="apply-filters" (click)="loadProducts()">Filtrele</button>
+      <button class="clear-filters" (click)="clearFilters()">Temizle</button>
+    </div>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Ürünler yükleniyor...</p>
+  </div>
+  
+  <!-- Error message -->
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="loadProducts()">Yeniden Dene</button>
+  </div>
+  
+  <!-- Products list -->
+  <div *ngIf="!loading && !error" class="products-table-container">
+    <table class="products-table" *ngIf="products.length > 0">
+      <thead>
+        <tr>
+          <th class="image-col">Görsel</th>
+          <th>Ürün Adı</th>
+          <th>Kategori</th>
+          <th>Fiyat</th>
+          <th>Stok</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let product of products">
+          <!-- Product row -->
+          <tr>
+            <td class="image-col">
+              <img [src]="product.imageUrl || 'assets/images/product-placeholder.png'" 
+                   alt="{{ product.name }}" class="product-thumbnail">
+            </td>
+            <td class="product-name">
+              <div class="product-title">{{ product.name }}</div>
+              <div class="product-sku" *ngIf="product.slug">SKU: {{ product.slug }}</div>
+            </td>
+            <td>{{ formatCategoryName(product.category) }}</td>
+            <td>
+              <div class="price-info">
+                <span class="regular-price">{{ formatPrice(product.price) }}</span>
+                <span class="discounted-price" *ngIf="product.discount">
+                  {{ formatPrice(calculateDiscountedPrice(product.price, product.discount)) }}
+                </span>
+              </div>
+            </td>
+            <td>{{ product.stock || 0 }}</td>
+            <td>
+              <div class="status-badge" [ngClass]="product.status === 'active' ? 'active' : product.isActive ? 'active' : 'inactive'">
+                {{ product.status === 'active' || product.isActive ? 'Aktif' : 'Pasif' }}
+              </div>
+            </td>
+            <td class="actions">
+              <button class="action-btn edit" (click)="openEditProductModal(product)" title="Düzenle">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn view" (click)="viewProductDetails(product.id)" title="Detaylar">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="action-btn toggle" 
+                      (click)="toggleProductStatus(product)" 
+                      [ngClass]="{'activate': product.status === 'inactive' || !product.isActive, 'deactivate': product.status === 'active' || product.isActive}"
+                      title="{{ (product.status === 'active' || product.isActive) ? 'Pasifleştir' : 'Aktifleştir' }}">
+                <i class="fas" [ngClass]="{'fa-toggle-on': product.status === 'active' || product.isActive, 'fa-toggle-off': product.status === 'inactive' || !product.isActive}"></i>
+              </button>
+              <button class="action-btn preview" (click)="previewProduct(product)" title="Önizleme">
+                <i class="fas fa-external-link-alt"></i>
+              </button>
+              <button class="action-btn variants" 
+                      (click)="toggleVariants(product)" 
+                      title="Varyantlar">
+                <i class="fas" [ngClass]="{'fa-caret-down': product.showVariants, 'fa-caret-right': !product.showVariants}"></i>
+              </button>
+              <button class="action-btn delete" (click)="deleteProduct(product.id)" title="Sil">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          
+          <!-- Variants section -->
+          <tr *ngIf="product.showVariants" class="variants-row">
+            <td colspan="7" class="variants-container">
+              <div *ngIf="!product.variants || product.variants.length === 0" class="no-variants">
+                <p>Bu ürünün varyantı bulunmuyor.</p>
+              </div>
+              
+              <table *ngIf="product.variants && product.variants.length > 0" class="variants-table">
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>Özellikler</th>
+                    <th>Fiyat</th>
+                    <th>İndirimli Fiyat</th>
+                    <th>Stok</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let variant of product.variants">
+                    <td>{{ variant.sku }}</td>
+                    <td>{{ formatVariantAttributes(variant.attributes) }}</td>
+                    <td>{{ formatPrice(variant.price) }}</td>
+                    <td>{{ variant.salePrice ? formatPrice(variant.salePrice) : '-' }}</td>
+                    <td>{{ variant.stock }}</td>
+                    <td>
+                      <div class="status-badge" [ngClass]="variant.status === 'active' ? 'active' : variant.active ? 'active' : 'inactive'">
+                        {{ variant.status === 'active' || variant.active ? 'Aktif' : 'Pasif' }}
+                      </div>
+                    </td>
+                    <td class="actions">
+                      <button class="action-btn edit" (click)="editVariant(variant, product.id)" title="Düzenle">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="action-btn toggle" 
+                              (click)="toggleVariantStatus(variant, product.id)" 
+                              [ngClass]="{'activate': variant.status === 'inactive' || !variant.active, 'deactivate': variant.status === 'active' || variant.active}"
+                              title="{{ (variant.status === 'active' || variant.active) ? 'Pasifleştir' : 'Aktifleştir' }}">
+                        <i class="fas" [ngClass]="{'fa-toggle-on': variant.status === 'active' || variant.active, 'fa-toggle-off': variant.status === 'inactive' || !variant.active}"></i>
+                      </button>
+                      <button class="action-btn delete" (click)="deleteVariant(variant.id, product.id)" title="Sil">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+    
+    <!-- No products message -->
+    <div *ngIf="products.length === 0" class="no-products">
+      <p>Ürün bulunamadı</p>
+    </div>
+  </div>
+  
+  <!-- Pagination controls -->
+  <div *ngIf="!loading && !error && products.length > 0" class="pagination">
+    <button 
+      [disabled]="page === 0" 
+      (click)="onPageChange(0)" 
+      class="page-btn">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
+    <button 
+      [disabled]="page === 0" 
+      (click)="onPageChange(page - 1)" 
+      class="page-btn">
+      <i class="fas fa-angle-left"></i>
+    </button>
+    
+    <div *ngFor="let pageNum of getPageNumbers()">
+      <button 
+        *ngIf="isNumber(pageNum)" 
+        [class.active]="pageNum === page" 
+        (click)="onPageChange(pageNum)" 
+        class="page-btn">
+        {{ pageNum + 1 }}
+      </button>
+      <span *ngIf="!isNumber(pageNum)" class="page-ellipsis">{{ pageNum }}</span>
+    </div>
+    
+    <button 
+      [disabled]="page === getLastPageIndex()" 
+      (click)="onPageChange(page + 1)" 
+      class="page-btn">
+      <i class="fas fa-angle-right"></i>
+    </button>
+    <button 
+      [disabled]="page === getLastPageIndex()" 
+      (click)="onPageChange(getLastPageIndex())" 
+      class="page-btn">
+      <i class="fas fa-angle-double-right"></i>
+    </button>
+  </div>
+  
+  <!-- Status update notification -->
+  <div *ngIf="statusUpdateSuccess" class="status-notification success">
+    <p>{{ statusUpdateMessage }}</p>
+  </div>
+</div>
+
+<!-- Product Edit Modal -->
+<div class="modal-overlay" *ngIf="showProductEditModal" (click)="closeProductEditModal()"></div>
+<div class="modal" *ngIf="showProductEditModal">
+  <div class="modal-header">
+    <h3>{{ editModalTitle }}</h3>
+    <button class="close-btn" (click)="closeProductEditModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <form (ngSubmit)="saveProduct()">
+      <div class="form-group">
+        <label for="product-name">Ürün Adı</label>
+        <input type="text" id="product-name" [(ngModel)]="productToEdit.name" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="product-description">Açıklama</label>
+        <textarea id="product-description" [(ngModel)]="productToEdit.description" name="description" rows="4"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="product-price">Fiyat (₺)</label>
+          <input type="number" id="product-price" [(ngModel)]="productToEdit.price" name="price" min="0" step="0.01" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="product-discount">İndirim (%)</label>
+          <input type="number" id="product-discount" [(ngModel)]="productToEdit.discount" name="discount" min="0" max="100">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="product-category">Kategori</label>
+          <select id="product-category" [(ngModel)]="productToEdit.categoryId" name="categoryId">
+            <option [ngValue]="undefined">Seçiniz</option>
+            <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="product-brand">Marka</label>
+          <select id="product-brand" [(ngModel)]="productToEdit.brand" name="brand" [compareWith]="compareBrands">
+            <option [ngValue]="undefined">Seçiniz</option>
+            <option *ngFor="let brand of brands" [ngValue]="brand">{{ brand.name }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="product-stock">Stok</label>
+          <input type="number" id="product-stock" [(ngModel)]="productToEdit.stock" name="stock" min="0" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="product-slug">SKU/Slug</label>
+          <input type="text" id="product-slug" [(ngModel)]="productToEdit.slug" name="slug">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="product-image">Görsel URL</label>
+        <input type="text" id="product-image" [(ngModel)]="productToEdit.imageUrl" name="imageUrl">
+      </div>
+      
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="productToEdit.isActive" name="isActive">
+          Aktif
+        </label>
+        
+        <label>
+          <input type="checkbox" [(ngModel)]="productToEdit.featured" name="featured">
+          Önerilen
+        </label>
+      </div>
+      
+      <div class="button-group">
+        <button type="button" class="cancel-btn" (click)="closeProductEditModal()">İptal</button>
+        <button type="submit" class="save-btn">Kaydet</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal-overlay" *ngIf="showProductDetailsModal" (click)="closeProductDetailsModal()"></div>
+<div class="modal details-modal" *ngIf="showProductDetailsModal">
+  <div class="modal-header">
+    <h3>Ürün Detayları</h3>
+    <button class="close-btn" (click)="closeProductDetailsModal()">×</button>
+  </div>
+  
+  <div class="modal-body">
+    <div *ngIf="productDetailsLoading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Ürün detayları yükleniyor...</p>
+    </div>
+    
+    <div *ngIf="!productDetailsLoading && selectedProduct" class="product-details">
+      <div class="product-details-header">
+        <div class="product-image">
+          <img [src]="selectedProduct.imageUrl || 'assets/images/product-placeholder.png'" 
+               alt="{{ selectedProduct.name }}">
+        </div>
+        
+        <div class="product-info">
+          <h2>{{ selectedProduct.name }}</h2>
+          <p class="product-code">Ürün Kodu: {{ selectedProduct.slug || 'Belirtilmemiş' }}</p>
+          
+          <div class="product-meta">
+            <div class="meta-item">
+              <strong>Kategori:</strong> {{ formatCategoryName(selectedProduct!.category) }}
+            </div>
+            <div class="meta-item">
+              <strong>Marka:</strong> {{ selectedProduct.brand?.name || 'Belirtilmemiş' }}
+            </div>
+            <div class="meta-item">
+              <strong>Fiyat:</strong> {{ formatPrice(selectedProduct!.price) }}
+            </div>
+            <div class="meta-item" *ngIf="selectedProduct.discount">
+              <strong>İndirimli Fiyat:</strong> 
+              {{ formatPrice(calculateDiscountedPrice(selectedProduct!.price, selectedProduct!.discount)) }}
+            </div>
+            <div class="meta-item">
+              <strong>Stok:</strong> {{ selectedProduct.stock || 0 }}
+            </div>
+            <div class="meta-item">
+              <strong>Durum:</strong> 
+              <span class="status-badge" [ngClass]="selectedProduct.status === 'active' ? 'active' : selectedProduct.isActive ? 'active' : 'inactive'">
+                {{ selectedProduct.status === 'active' || selectedProduct.isActive ? 'Aktif' : 'Pasif' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="product-description">
+        <h3>Ürün Açıklaması</h3>
+        <p>{{ selectedProduct.description || 'Açıklama bulunmuyor.' }}</p>
+      </div>
+      
+      <!-- Variants section -->
+      <div class="product-variants" *ngIf="selectedProduct.variants && selectedProduct.variants.length > 0">
+        <h3>Varyantlar</h3>
+        
+        <table class="variants-table">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Özellikler</th>
+              <th>Fiyat</th>
+              <th>İndirimli Fiyat</th>
+              <th>Stok</th>
+              <th>Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let variant of selectedProduct.variants">
+              <td>{{ variant.sku }}</td>
+              <td>{{ formatVariantAttributes(variant.attributes) }}</td>
+              <td>{{ formatPrice(variant.price) }}</td>
+              <td>{{ variant.salePrice ? formatPrice(variant.salePrice) : '-' }}</td>
+              <td>{{ variant.stock }}</td>
+              <td>
+                <div class="status-badge" [ngClass]="variant.status === 'active' ? 'active' : variant.active ? 'active' : 'inactive'">
+                  {{ variant.status === 'active' || variant.active ? 'Aktif' : 'Pasif' }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Variant Edit Modal -->
+<div class="modal-overlay" *ngIf="showVariantEditModal" (click)="closeVariantEditModal()"></div>
+<div class="modal variant-modal" *ngIf="showVariantEditModal">
+  <div class="modal-header">
+    <h3>{{ editVariantTitle }}</h3>
+    <button class="close-btn" (click)="closeVariantEditModal()">×</button>
+  </div>
+  
+  <div class="modal-body">
+    <form (ngSubmit)="saveVariant()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="variant-sku">SKU</label>
+          <input type="text" id="variant-sku" [(ngModel)]="variantToEdit.sku" name="sku" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="variant-price">Fiyat (₺)</label>
+          <input type="number" id="variant-price" [(ngModel)]="variantToEdit.price" name="price" min="0" step="0.01" required>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="variant-sale-price">İndirimli Fiyat (₺)</label>
+          <input type="number" id="variant-sale-price" [(ngModel)]="variantToEdit.salePrice" name="salePrice" min="0" step="0.01">
+        </div>
+        
+        <div class="form-group">
+          <label for="variant-stock">Stok</label>
+          <input type="number" id="variant-stock" [(ngModel)]="variantToEdit.stock" name="stock" min="0" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="variant-status">Durum</label>
+        <select id="variant-status" [(ngModel)]="variantToEdit.status" name="status">
+          <option value="active">Aktif</option>
+          <option value="inactive">Pasif</option>
+        </select>
+      </div>
+      
+      <!-- Variant attributes section -->
+      <div class="variant-attributes">
+        <div class="attributes-header">
+          <h4>Özellikler</h4>
+          <button type="button" class="add-attribute-btn" (click)="showAttributeForm()">Ekle</button>
+        </div>
+        
+        <!-- Attribute list -->
+        <div class="attributes-list" *ngIf="variantToEdit.attributes && (getAttributeCount() > 0)">
+          <div class="attribute-item" *ngFor="let attr of getAttributesArray()">
+            <div class="attribute-name">{{ attr.key }}:</div>
+            <div class="attribute-value">{{ attr.value }}</div>
+            <div class="attribute-actions">
+              <button type="button" class="edit-attribute" (click)="editAttribute(attr.key)">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+              <button type="button" class="remove-attribute" (click)="removeAttribute(attr.key)">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No attributes message -->
+        <div class="no-attributes" *ngIf="!variantToEdit.attributes || (getAttributeCount() === 0)">
+          <p>Henüz özellik eklenmemiş</p>
+        </div>
+        
+        <!-- Add attribute form -->
+        <div class="add-attribute-form" *ngIf="showAddAttributeForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="attribute-key">Özellik Adı</label>
+              <input type="text" id="attribute-key" [(ngModel)]="newAttributeKey" name="attributeKey" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="attribute-value">Değer</label>
+              <input type="text" id="attribute-value" [(ngModel)]="newAttributeValue" name="attributeValue" required>
+            </div>
+          </div>
+          
+          <!-- Quick select options for color and size -->
+          <div class="quick-select-options" *ngIf="newAttributeKey.toLowerCase() === 'renk'">
+            <h5>Renk Seçici</h5>
+            <div class="color-palette">
+              <div *ngFor="let color of availableColors"
+                  class="color-option"
+                  [style.background-color]="color.code"
+                  [style.color]="isLightColor(color.code) ? '#000' : '#fff'"
+                  (click)="selectColorWithCode('Renk', color.name, color.code)">
+                {{ color.name }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="quick-select-options" *ngIf="newAttributeKey.toLowerCase() === 'beden'">
+            <h5>Beden Seçici</h5>
+            <div class="size-selector">
+              <div *ngFor="let size of availableSizes"
+                  class="size-option"
+                  (click)="selectSize('Beden', size)">
+                {{ size }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="attribute-form-actions">
+            <button type="button" class="cancel-attribute-btn" (click)="cancelAddAttribute()">İptal</button>
+            <button type="button" class="save-attribute-btn" (click)="confirmAddAttribute()" [disabled]="!newAttributeKey || !newAttributeValue">Ekle</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="button-group">
+        <button type="button" class="cancel-btn" (click)="closeVariantEditModal()">İptal</button>
+        <button type="submit" class="save-btn">Kaydet</button>
+      </div>
+    </form>
+  </div>
+</div>

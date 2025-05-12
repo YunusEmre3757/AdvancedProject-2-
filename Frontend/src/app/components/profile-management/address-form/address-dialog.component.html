@@ -1,0 +1,23 @@
+<mat-form-field appearance="outline" class="full-width">
+  <mat-label>İlçe</mat-label>
+  <mat-select formControlName="ilce">
+    <mat-option *ngFor="let ilce of ilceler" [value]="ilce.id">
+      {{ilce.name}}
+    </mat-option>
+  </mat-select>
+  <mat-error *ngIf="addressForm.get('ilce')?.hasError('required')">
+    İlçe seçimi zorunludur
+  </mat-error>
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="full-width">
+  <mat-label>Mahalle</mat-label>
+  <mat-select formControlName="mahalle">
+    <mat-option *ngFor="let mahalle of mahalleler" [value]="mahalle.id">
+      {{mahalle.name}}
+    </mat-option>
+  </mat-select>
+  <mat-error *ngIf="addressForm.get('mahalle')?.hasError('required')">
+    Mahalle seçimi zorunludur
+  </mat-error>
+</mat-form-field> 

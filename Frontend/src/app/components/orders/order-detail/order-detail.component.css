@@ -1,0 +1,411 @@
+:root {
+  --primary-color: #3f51b5;
+  --primary-light: #e8eaf6;
+  --secondary-color: #f50057;
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --danger-color: #f44336;
+  --dark-color: #333;
+  --text-color: #555;
+  --light-gray: #eee;
+  --border-radius: 8px;
+}
+
+.order-detail-container {
+  padding: 20px 0;
+  background-color: #f8f9fa;
+  min-height: 80vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: white;
+  padding: 15px 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+  margin-right: 15px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  color: var(--dark-color);
+  margin: 0;
+  font-weight: 600;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 300px;
+  padding: 40px 20px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-icon {
+  font-size: 64px;
+  height: 64px;
+  width: 64px;
+  color: var(--danger-color);
+  margin-bottom: 20px;
+}
+
+.order-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+mat-card {
+  margin-bottom: 20px;
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden;
+}
+
+mat-card-header {
+  background-color: var(--primary-light);
+  padding: 16px 20px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+mat-card-content {
+  padding: 20px !important;
+}
+
+.order-header-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
+}
+
+.order-id, .order-date, .order-status {
+  display: flex;
+  flex-direction: column;
+  margin-right: 30px;
+}
+
+.label {
+  font-size: 12px;
+  color: var(--text-color);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-chip mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  margin-right: 4px;
+}
+
+.status-completed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pending {
+  background-color: #fff8e1;
+  color: #ff8f00;
+}
+
+.status-shipping {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-cancelled {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.detail-section {
+  margin-bottom: 24px;
+  background-color: #f9fafb;
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-color);
+}
+
+.detail-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--dark-color);
+}
+
+.address, .tracking-number {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-color);
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.tracking-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tracking-section a {
+  margin-top: 10px;
+}
+
+.order-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-item {
+  display: flex;
+  border-bottom: 1px solid var(--light-gray);
+  padding-bottom: 16px;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 16px;
+  cursor: pointer;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--primary-color);
+}
+
+.item-name:hover {
+  color: var(--secondary-color);
+}
+
+.item-price-quantity {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.item-price, .item-quantity {
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.item-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 8px;
+  background-color: var(--primary-light);
+  border-radius: 4px;
+}
+
+.item-total .value {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.price-summary {
+  padding: 16px 0;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--text-color);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.total-line {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-top: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--primary-color);
+}
+
+mat-card-actions {
+  padding: 16px !important;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--light-gray);
+  background-color: #fafafa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-header-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .order-item {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .item-image {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 10px;
+    margin-right: 0;
+  }
+}
+
+/* Payment and Refund Section Styles */
+.payment-refund-card {
+  margin-top: 20px;
+  border-top: 2px solid var(--primary-color);
+}
+
+.payment-section, .refund-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 6px;
+  background-color: #f9fafb;
+}
+
+.payment-section {
+  border-left: 3px solid var(--primary-color);
+}
+
+.refund-section {
+  border-left: 3px solid var(--secondary-color);
+}
+
+.info-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.info-line .label {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.info-line .value {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.info-line .value mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+}
+
+/* Refund Status Colors */
+.status-delivered {
+  color: var(--success-color);
+}
+
+.status-processing {
+  color: var(--warning-color);
+}
+
+.status-cancelled {
+  color: var(--danger-color);
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.item-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background-color: var(--primary-light);
+}
+
+.item-status .label {
+  font-weight: 500;
+  color: var(--dark-color);
+  margin-bottom: 0;
+}
+
+.item-actions {
+  margin-top: 8px;
+}
+
+.cancel-item-btn {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+} 

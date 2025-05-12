@@ -1,0 +1,112 @@
+<div class="verify-email-container">
+ <div class="verify-email-card">
+   <div class="verify-email-content">
+     <!-- Loading State -->
+     <div *ngIf="loading" class="verify-email-state animate-in">
+       <div class="icon-container loading">
+         <div class="loading-ring"></div>
+       </div>
+       <h2 class="animate-up">E-posta Doğrulanıyor</h2>
+       <p class="message animate-up delay-1">Lütfen bekleyin, e-posta adresiniz doğrulanıyor...</p>
+     </div>
+
+     <!-- Success State -->
+     <div *ngIf="success" class="verify-email-state animate-in">
+       <div class="icon-container success animate-scale">
+         <div class="success-checkmark">
+           <div class="check-icon">
+             <span class="icon-line line-tip"></span>
+             <span class="icon-line line-long"></span>
+           </div>
+         </div>
+       </div>
+       <h2 class="animate-up">E-posta Doğrulandı!</h2>
+       <p class="message animate-up delay-1">{{ message }}</p>
+       <p class="countdown animate-up delay-2" *ngIf="countdown > 0">
+         <span class="countdown-number">{{ countdown }}</span>
+         saniye içinde ana sayfaya yönlendirileceksiniz...
+       </p>
+       <div class="button-container animate-up delay-3">
+         <button mat-flat-button (click)="navigateToHome()" class="gradient-button">
+           <mat-icon>home</mat-icon>
+           Ana Sayfaya Git
+         </button>
+       </div>
+     </div>
+
+     <!-- Error State with Expired Token -->
+     <div *ngIf="error && isExpiredToken" class="verify-email-state animate-in">
+       <div class="icon-container error animate-scale">
+         <div class="error-circle">
+           <mat-icon>timer_off</mat-icon>
+         </div>
+       </div>
+       <h2 class="animate-up">Doğrulama Kodunun Süresi Dolmuş</h2>
+       <p class="message animate-up delay-1">{{ message }}</p>
+       <div class="button-container animate-up delay-2">
+         <button mat-stroked-button 
+                 *ngIf="showResendButton" 
+                 (click)="resendVerificationEmail()" 
+                 [disabled]="loading"
+                 class="outline-button">
+           <mat-icon>refresh</mat-icon>
+           Yeni Doğrulama Kodu Gönder
+         </button>
+         <button mat-flat-button 
+                 (click)="navigateToLogin()"
+                 class="gradient-button">
+           <mat-icon>login</mat-icon>
+           Giriş Sayfasına Dön
+         </button>
+       </div>
+     </div>
+
+     <!-- General Error State -->
+     <div *ngIf="error && !isExpiredToken" class="verify-email-state animate-in">
+       <div class="icon-container error animate-scale">
+         <div class="error-circle">
+           <mat-icon>error_outline</mat-icon>
+         </div>
+       </div>
+       <h2 class="animate-up">Doğrulama Hatası</h2>
+       <p class="message animate-up delay-1">{{ message }}</p>
+       <div class="button-container animate-up delay-2">
+         <button mat-stroked-button 
+                 *ngIf="showResendButton" 
+                 (click)="resendVerificationEmail()" 
+                 [disabled]="loading"
+                 class="outline-button">
+           <mat-icon>refresh</mat-icon>
+           Yeni Doğrulama Linki Gönder
+         </button>
+         <button mat-flat-button 
+                 (click)="navigateToLogin()"
+                 class="gradient-button">
+           <mat-icon>login</mat-icon>
+           Giriş Sayfasına Dön
+         </button>
+       </div>
+     </div>
+
+     <!-- Waiting for Verification State -->
+     <div *ngIf="!loading && !success && !error && message" class="verify-email-state animate-in">
+       <div class="icon-container info animate-float">
+         <div class="info-circle">
+           <mat-icon>mail</mat-icon>
+         </div>
+       </div>
+       <h2 class="animate-up">E-posta Doğrulama</h2>
+       <p class="message animate-up delay-1">{{ message }}</p>
+       <div class="button-container animate-up delay-2" *ngIf="showResendButton">
+         <button mat-flat-button 
+                 (click)="resendVerificationEmail()" 
+                 [disabled]="loading"
+                 class="gradient-button">
+           <mat-icon>send</mat-icon>
+           Yeni Doğrulama Linki Gönder
+         </button>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>

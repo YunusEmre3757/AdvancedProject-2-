@@ -1,0 +1,399 @@
+<div class="profile-container">
+ <!-- Loading Indicator -->
+ <div *ngIf="isLoading" class="loading-overlay">
+   <mat-spinner diameter="50"></mat-spinner>
+ </div>
+
+ <!-- Sol Menü -->
+ <div class="profile-sidebar">
+   <div class="user-info">
+     <div class="avatar-container">
+       <mat-icon class="avatar-icon">account_circle</mat-icon>
+       <div class="user-details">
+         <span class="user-name">{{currentUser?.name}} {{currentUser?.surname}}</span>
+         <span class="user-email">{{currentUser?.email}}</span>
+       </div>
+     </div>
+   </div>
+   <mat-nav-list>
+     <a mat-list-item (click)="setActiveSection('personal')" [class.active]="activeSection === 'personal'">
+       <mat-icon>person_outline</mat-icon>
+       <span>Üyelik Bilgilerim</span>
+       <mat-icon class="nav-arrow">chevron_right</mat-icon>
+     </a>
+     <a mat-list-item (click)="setActiveSection('addresses')" [class.active]="activeSection === 'addresses'">
+       <mat-icon>location_on_outline</mat-icon>
+       <span>Adres Defteri</span>
+       <mat-icon class="nav-arrow">chevron_right</mat-icon>
+     </a>
+     <a mat-list-item (click)="setActiveSection('applications')" [class.active]="activeSection === 'applications'">
+       <mat-icon>store</mat-icon>
+       <span>Mağaza Başvurularım</span>
+       <mat-icon class="nav-arrow">chevron_right</mat-icon>
+     </a>
+     <mat-divider></mat-divider>
+     <a mat-list-item (click)="logout()" class="logout-item">
+       <mat-icon>logout</mat-icon>
+       <span>Çıkış</span>
+       <mat-icon class="nav-arrow">chevron_right</mat-icon>
+     </a>
+   </mat-nav-list>
+ </div>
+
+ <!-- Sağ İçerik -->
+ <div class="profile-content" *ngIf="!isLoading">
+   <!-- Adres Defteri -->
+   <mat-card class="content-section" *ngIf="activeSection === 'addresses'">
+     <mat-card-header>
+       <mat-card-title>
+         <h1>ADRES DEFTERİ</h1>
+       </mat-card-title>
+       <mat-card-subtitle>
+         Adreslerinizi yönetin ve yeni adres ekleyin
+       </mat-card-subtitle>
+     </mat-card-header>
+
+     <mat-card-content>
+       <!-- Address List -->
+       <div class="address-list-container" *ngIf="addresses && addresses.length > 0">
+         <h2>Kayıtlı Adreslerim</h2>
+         <div class="address-grid">
+           <mat-card class="address-card" *ngFor="let address of addresses">
+             <mat-card-header>
+               <mat-card-title>
+                 <mat-icon>location_on</mat-icon>
+                 {{address.adresBasligi}}
+               </mat-card-title>
+               <mat-card-subtitle>
+                 <mat-icon>phone</mat-icon>
+                 {{address.telefon}}
+               </mat-card-subtitle>
+             </mat-card-header>
+             <mat-card-content>
+               <p class="address-details">
+                 <mat-icon>place</mat-icon>
+                 {{address.il.ilAdi}} / {{address.ilce.ilceAdi}} / {{address.mahalle.mahalleAdi}}
+               </p>
+               <p class="address-text">{{address.detayAdres}}</p>
+             </mat-card-content>
+             <mat-card-actions align="end">
+               <button mat-button color="warn" (click)="deleteAddress(address.id)">
+                 <mat-icon>delete</mat-icon> Sil
+               </button>
+             </mat-card-actions>
+           </mat-card>
+         </div>
+       </div>
+
+       <!-- No Address Message -->
+       <div class="no-address-container" *ngIf="!addresses || addresses.length === 0">
+         <mat-icon class="no-address-icon">location_off</mat-icon>
+         <h3>Henüz kayıtlı adresiniz bulunmamaktadır</h3>
+         <p>Yeni adres eklemek için aşağıdaki butonu kullanabilirsiniz.</p>
+       </div>
+
+       <!-- Add New Address Button -->
+       <div class="add-address-container">
+         <button mat-raised-button color="primary" (click)="addAddress()">
+           <mat-icon>add_location</mat-icon>
+           Yeni Adres Ekle
+         </button>
+       </div>
+     </mat-card-content>
+   </mat-card>
+
+   <!-- Üyelik Bilgileri -->
+   <mat-card class="content-section" *ngIf="activeSection === 'personal'">
+     <mat-card-header>
+       <mat-card-title>
+         <h1>BİLGİLERİM</h1>
+       </mat-card-title>
+       <mat-card-subtitle>
+         Lütfen aşağıdaki bilgileri kontrol ederek tümünün güncel olduğundan emin ol
+       </mat-card-subtitle>
+     </mat-card-header>
+
+     <mat-card-content>
+       <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+         <!-- Detaylar -->
+         <section class="details-section">
+           <h2><mat-icon>person</mat-icon> DETAYLAR</h2>
+           <div class="detail-item">
+             <div class="detail-info">
+               <span class="detail-label">AD SOYAD</span>
+               <div class="form-fields" *ngIf="isEditing">
+                 <mat-form-field appearance="outline">
+                   <mat-label>Ad</mat-label>
+                   <input matInput formControlName="name" placeholder="Adınız">
+                 </mat-form-field>
+                 <mat-form-field appearance="outline">
+                   <mat-label>Soyad</mat-label>
+                   <input matInput formControlName="surname" placeholder="Soyadınız">
+                 </mat-form-field>
+               </div>
+               <span class="detail-value" *ngIf="!isEditing">{{currentUser?.name}} {{currentUser?.surname}}</span>
+             </div>
+             <button mat-button color="primary" class="edit-button" type="button" (click)="toggleEdit()">
+               <mat-icon>{{isEditing ? 'save' : 'edit'}}</mat-icon>
+               {{isEditing ? 'KAYDET' : 'DÜZENLE'}}
+             </button>
+           </div>
+
+           <div class="detail-item">
+             <div class="detail-info">
+               <span class="detail-label">TELEFON</span>
+               <div class="form-fields" *ngIf="isEditing">
+                 <mat-form-field appearance="outline">
+                   <mat-label>Telefon</mat-label>
+                   <input matInput formControlName="phoneNumber" placeholder="Telefon numaranız">
+                   <mat-hint>Örnek: 05XX XXX XX XX</mat-hint>
+                   <mat-error *ngIf="profileForm.get('phoneNumber')?.hasError('invalidPhoneNumber')">
+                     Geçerli bir telefon numarası giriniz (05XX XXX XX XX)
+                   </mat-error>
+                 </mat-form-field>
+               </div>
+               <span class="detail-value" *ngIf="!isEditing">{{currentUser?.phoneNumber || 'Belirtilmemiş'}}</span>
+             </div>
+           </div>
+         </section>
+
+         <!-- Giriş Detayları -->
+         <section class="login-details-section">
+           <h2>
+             <mat-icon>security</mat-icon> GİRİŞ DETAYLARI
+             <button mat-button color="primary" class="edit-button" type="button" (click)="toggleLoginDetailsEdit()">
+               <mat-icon>{{isEditingLoginDetails ? 'save' : 'edit'}}</mat-icon>
+               {{isEditingLoginDetails ? 'KAYDET' : 'DÜZENLE'}}
+             </button>
+           </h2>
+           
+           <div class="detail-item">
+             <div class="detail-info">
+               <span class="detail-label">E-POSTA</span>
+               <div class="form-fields" *ngIf="isEditingLoginDetails">
+                 <mat-form-field appearance="outline">
+                   <mat-label>E-posta</mat-label>
+                   <input matInput formControlName="email" placeholder="E-posta adresiniz" type="email">
+                   <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+                     E-posta adresi gereklidir
+                   </mat-error>
+                   <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+                     Geçerli bir e-posta adresi giriniz
+                   </mat-error>
+                 </mat-form-field>
+
+                 <!-- Email doğrulama butonu -->
+                 <div class="email-verification-actions" *ngIf="profileForm.get('email')?.value && profileForm.get('email')?.value !== currentUser?.email">
+                   <button mat-flat-button color="primary" (click)="sendVerificationEmail('new')" 
+                           [disabled]="isWaitingForVerification"
+                           type="button">
+                     <mat-icon>send</mat-icon>
+                     Doğrulama Kodu Gönder
+                   </button>
+                 </div>
+               </div>
+               <span class="detail-value" *ngIf="!isEditingLoginDetails">{{currentUser?.email}}</span>
+             </div>
+           </div>
+
+           <div class="detail-item">
+             <div class="detail-info">
+               <span class="detail-label">ŞİFRE</span>
+               <div class="form-fields" *ngIf="isEditingLoginDetails">
+                 <mat-form-field appearance="outline">
+                   <mat-label>Mevcut Şifre</mat-label>
+                   <input matInput [formControlName]="'currentPassword'" type="password" placeholder="Mevcut şifreniz">
+                   <mat-error *ngIf="profileForm.get('currentPassword')?.hasError('required')">
+                     Mevcut şifre gereklidir
+                   </mat-error>
+                 </mat-form-field>
+                 <mat-form-field appearance="outline">
+                   <mat-label>Yeni Şifre</mat-label>
+                   <input matInput [formControlName]="'newPassword'" type="password" placeholder="Yeni şifreniz">
+                   <mat-error *ngIf="profileForm.get('newPassword')?.hasError('required')">
+                     Yeni şifre gereklidir
+                   </mat-error>
+                   <mat-error *ngIf="profileForm.get('newPassword')?.hasError('passwordStrength')">
+                     Şifreniz en az 8 karakter uzunluğunda olmalı ve büyük harf, küçük harf, rakam ve özel karakter içermelidir
+                   </mat-error>
+                 </mat-form-field>
+                 <mat-form-field appearance="outline">
+                   <mat-label>Yeni Şifre (Tekrar)</mat-label>
+                   <input matInput [formControlName]="'confirmPassword'" type="password" placeholder="Yeni şifrenizi tekrar girin">
+                   <mat-error *ngIf="profileForm.get('confirmPassword')?.hasError('required')">
+                     Şifre tekrarı gereklidir
+                   </mat-error>
+                   <mat-error *ngIf="profileForm.get('confirmPassword')?.hasError('passwordMismatch')">
+                     Şifreler eşleşmiyor
+                   </mat-error>
+                 </mat-form-field>
+                 <div class="password-requirements" *ngIf="profileForm.get('newPassword')?.value">
+                   <p class="requirement-title">Şifre gereksinimleri:</p>
+                   <ul>
+                     <li [class.met]="!hasPasswordError('length')">En az 8 karakter</li>
+                     <li [class.met]="!hasPasswordError('uppercase')">En az 1 büyük harf</li>
+                     <li [class.met]="!hasPasswordError('lowercase')">En az 1 küçük harf</li>
+                     <li [class.met]="!hasPasswordError('number')">En az 1 rakam</li>
+                     <li [class.met]="!hasPasswordError('special')">En az 1 özel karakter (!&#64;#$%^&*)</li>
+                   </ul>
+                 </div>
+               </div>
+               <span class="detail-value" *ngIf="!isEditingLoginDetails">••••••••</span>
+             </div>
+           </div>
+         </section>
+       </form>
+
+       <!-- Hesabı Yönet -->
+       <section class="account-management-section">
+         <h2><mat-icon>manage_accounts</mat-icon> HESABI YÖNET</h2>
+         
+         <mat-card class="action-item">
+         
+           <button mat-stroked-button (click)="logoutFromAll()">
+             ÇIKIŞ YAP
+             <mat-icon>arrow_forward</mat-icon>
+           </button>
+         </mat-card>
+
+         <mat-card class="action-item warning">
+           <div class="action-info">
+             <h3>
+               <mat-icon>delete_forever</mat-icon>
+               HESABI SİL
+             </h3>
+             <p>Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+           </div>
+           <button mat-stroked-button color="warn" (click)="deleteAccount()">
+             HESABI SİL
+             <mat-icon>arrow_forward</mat-icon>
+           </button>
+         </mat-card>
+       </section>
+     </mat-card-content>
+   </mat-card>
+
+   <!-- Mağaza Başvuruları -->
+   <mat-card class="content-section" *ngIf="activeSection === 'applications'">
+     <mat-card-header>
+       <mat-card-title>
+         <h1>MAĞAZA BAŞVURULARIM</h1>
+       </mat-card-title>
+       <mat-card-subtitle>
+         Mağaza başvurularınızın durumunu takip edin ve yeni başvuru yapın
+       </mat-card-subtitle>
+     </mat-card-header>
+
+     <mat-card-content>
+       <!-- Başvuru Listesi -->
+       <div class="applications-list-container" *ngIf="storeApplications && storeApplications.length > 0">
+         <table class="applications-table">
+           <thead>
+             <tr>
+               <th>Mağaza Adı</th>
+               <th>Durum</th>
+               <th *ngIf="hasApprovedApplication">İşlemler</th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr *ngFor="let app of storeApplications">
+               <td class="store-name">
+                 <img *ngIf="app.logo" [src]="app.logo" alt="Mağaza Logosu" class="store-logo">
+                 <mat-icon *ngIf="!app.logo">store</mat-icon>
+                 {{ app.name }}
+               </td>
+               <td>
+                 <span class="status-badge" [style.backgroundColor]="getApplicationStatusColor(app.status)">
+                   {{ getApplicationStatusText(app.status) }}
+                 </span>
+               </td>
+               <td *ngIf="hasApprovedApplication">
+                 <button *ngIf="app.status === 'approved'" mat-button color="primary" 
+                         [routerLink]="['/seller/dashboard']">
+                   <mat-icon>dashboard</mat-icon> Panele Git
+                 </button>
+               </td>
+               <td *ngIf="app.status === 'pending'">
+                 <button mat-button color="warn" (click)="withdrawApplication(app.id)">
+                   <mat-icon>cancel</mat-icon> Başvuruyu Geri Çek
+                 </button>
+               </td>
+             </tr>
+           </tbody>
+         </table>
+       </div>
+
+       <!-- Başvuru Yok Mesajı -->
+       <div class="no-applications-container" *ngIf="!storeApplications || storeApplications.length === 0">
+         <mat-icon class="no-applications-icon">store_off</mat-icon>
+         <h3>Henüz mağaza başvurunuz bulunmamaktadır</h3>
+         <p>Satıcı olmak ve mağaza açmak için aşağıdaki butonu kullanabilirsiniz.</p>
+       </div>
+
+       <!-- Yeni Başvuru Butonu -->
+       <div class="add-application-container">
+         <button mat-raised-button color="primary" (click)="navigateToStoreApplication()">
+           <mat-icon>add_business</mat-icon>
+           Yeni Mağaza Başvurusu Yap
+         </button>
+       </div>
+     </mat-card-content>
+   </mat-card>
+ </div>
+</div>
+
+<style>
+ .verification-code-container {
+   margin: 20px 0;
+   padding: 20px;
+   border-radius: 8px;
+   background-color: #f5f5f5;
+ }
+
+ .verification-code-title {
+   text-align: center;
+   margin-bottom: 20px;
+ }
+
+ .verification-code-title h3 {
+   margin: 0;
+   color: #333;
+ }
+
+ .verification-code-title p {
+   margin: 8px 0 0;
+   color: #666;
+   font-size: 14px;
+ }
+
+ .verification-code-inputs {
+   display: flex;
+   justify-content: center;
+   gap: 8px;
+   margin: 20px 0;
+ }
+
+ .verification-code-input {
+   width: 40px;
+   height: 48px;
+   text-align: center;
+   font-size: 24px;
+   border: 2px solid #ddd;
+   border-radius: 8px;
+   background: white;
+   transition: all 0.3s ease;
+ }
+
+ .verification-code-input:focus {
+   border-color: #1976d2;
+   outline: none;
+   box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+ }
+
+ .verification-code-actions {
+   display: flex;
+   justify-content: center;
+   gap: 16px;
+   margin-top: 20px;
+ }
+</style> 

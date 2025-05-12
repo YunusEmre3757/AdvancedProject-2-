@@ -1,0 +1,68 @@
+<div class="store-login-container">
+  <div class="store-login-card">
+    <div class="store-login-header">
+      <h1>Mağaza Girişi</h1>
+      <p>Mağaza hesabınıza giriş yapın</p>
+    </div>
+
+    <form [formGroup]="storeLoginForm" (ngSubmit)="onSubmit()" class="store-login-form">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>E-posta</mat-label>
+        <input matInput type="email" formControlName="email" placeholder="magaza@email.com">
+        <mat-icon matPrefix>email</mat-icon>
+        <mat-error *ngIf="storeLoginForm.get('email')?.hasError('required')">
+          E-posta gereklidir
+        </mat-error>
+        <mat-error *ngIf="storeLoginForm.get('email')?.hasError('email')">
+          Geçerli bir e-posta adresi giriniz
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Şifre</mat-label>
+        <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password">
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
+          <mat-icon>{{showPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="storeLoginForm.get('password')?.hasError('required')">
+          Şifre gereklidir
+        </mat-error>
+        <mat-error *ngIf="storeLoginForm.get('password')?.hasError('minlength')">
+          Şifre en az 6 karakter olmalıdır
+        </mat-error>
+      </mat-form-field>
+
+      <div class="form-options">
+        <a mat-button color="primary" routerLink="/auth/forgot-password">
+          Şifremi unuttum
+        </a>
+      </div>
+
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="!storeLoginForm.valid || isLoading" class="login-button">
+          <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+          <span *ngIf="!isLoading">Giriş Yap</span>
+        </button>
+      </div>
+
+      <mat-error *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </mat-error>
+    </form>
+
+    <div class="application-prompt">
+      <span>Henüz mağaza hesabınız yok mu?</span>
+      <button mat-button color="accent" (click)="navigateToStoreApplication()">
+        Mağaza Başvurusu Yap
+      </button>
+    </div>
+
+    <div class="login-info">
+      <mat-icon color="primary">info</mat-icon>
+      <p>
+        Bu giriş yalnızca onaylanmış mağaza sahipleri içindir. Mağaza başvurunuz onaylandıktan sonra bu sayfadan giriş yapabilirsiniz.
+      </p>
+    </div>
+  </div>
+</div> 

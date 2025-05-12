@@ -1,0 +1,54 @@
+<div class="favorites-container">
+ <div class="container">
+   <h1 class="page-title">Favorilerim</h1>
+   
+   <div *ngIf="loading" class="loading-container">
+     <mat-spinner></mat-spinner>
+   </div>
+   
+   <div *ngIf="!loading && favorites.length === 0" class="empty-favorites">
+     <mat-icon class="empty-icon">favorite_border</mat-icon>
+     <h2>Favori Listeniz Boş</h2>
+     <p>Henüz favori ürün eklemediniz.</p>
+     <button mat-raised-button color="primary" routerLink="/products">
+       Alışverişe Başla
+     </button>
+   </div>
+   
+   <div *ngIf="!loading && favorites.length > 0" class="favorites-list">
+     <div class="favorite-item" *ngFor="let product of favorites">
+       <div class="product-image" (click)="navigateToProductDetail(product)">
+         <img [src]="product.imageUrl || 'assets/images/no-image.jpg'" [alt]="product.name">
+       </div>
+       
+       <div class="product-info">
+         <h3 class="product-name" (click)="navigateToProductDetail(product)">{{ product.name }}</h3>
+         
+         <div class="product-price">
+           <span class="price">{{ product.price | currency:'₺' }}</span>
+           <span class="discount-price" *ngIf="product.discountedPrice">
+             {{ product.discountedPrice | currency:'₺' }}
+           </span>
+         </div>
+         
+         <div class="availability" [ngClass]="{'in-stock': product.stock > 0, 'out-of-stock': product.stock <= 0}">
+           <mat-icon>{{ product.stock > 0 ? 'check_circle' : 'cancel' }}</mat-icon>
+           <span>{{ product.stock > 0 ? 'Stokta' : 'Stokta Yok' }}</span>
+         </div>
+       </div>
+       
+       <div class="product-actions">
+         <button mat-icon-button color="warn" (click)="removeFromFavorites(product)" 
+                 matTooltip="Favorilerden Çıkar">
+           <mat-icon>delete</mat-icon>
+         </button>
+         
+         <button mat-raised-button color="primary" [disabled]="product.stock <= 0" 
+                 (click)="addToCart(product)" class="add-to-cart-btn">
+           <mat-icon>shopping_cart</mat-icon> Sepete Ekle
+         </button>
+       </div>
+     </div>
+   </div>
+ </div>
+</div> 

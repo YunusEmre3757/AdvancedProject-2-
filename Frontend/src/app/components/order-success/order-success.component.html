@@ -1,0 +1,61 @@
+<div class="order-success-container">
+  <div class="container">
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+    
+    <div *ngIf="error && !loading" class="error-container">
+      <div class="icon-container error">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <h1>Sipariş Bilgileri Yüklenemedi</h1>
+      <p>Sipariş detaylarını getirirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="viewAllOrders()">Tüm Siparişleri Görüntüle</button>
+        <button mat-raised-button (click)="continueShopping()">Alışverişe Devam Et</button>
+      </div>
+    </div>
+    
+    <div *ngIf="!loading && !error" class="success-container">
+      <div class="icon-container success">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <h1>Siparişiniz Başarıyla Oluşturuldu!</h1>
+      <p>Sipariş numaranız: <strong>{{ orderDetails?.orderNumber || orderId }}</strong></p>
+      
+      <div class="order-summary" *ngIf="orderDetails">
+        <h2>Sipariş Özeti</h2>
+        <div class="summary-content">
+          <div class="summary-item">
+            <div class="label">Sipariş Tarihi:</div>
+            <div class="value">{{ orderDetails.date | date:'dd.MM.yyyy HH:mm' }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">Toplam Tutar:</div>
+            <div class="value">{{ orderDetails.totalPrice | currency:'₺' }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">Durum:</div>
+            <div class="value">{{ orderDetails.status }}</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">Teslimat Adresi:</div>
+            <div class="value">{{ orderDetails.address }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="thank-you-message">
+        <p>
+          Siparişiniz için teşekkür ederiz! Siparişinizle ilgili bilgiler e-posta adresinize gönderildi.
+          Siparişinizin durumunu "Siparişlerim" sayfasından takip edebilirsiniz.
+        </p>
+      </div>
+      
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="viewOrderDetails()">Sipariş Detaylarını Görüntüle</button>
+        <button mat-raised-button (click)="continueShopping()">Alışverişe Devam Et</button>
+      </div>
+    </div>
+  </div>
+</div> 

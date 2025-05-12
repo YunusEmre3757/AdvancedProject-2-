@@ -1,0 +1,75 @@
+<div class="orders-container">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Siparişlerim</h1>
+      <div class="filter-section">
+        <mat-form-field appearance="outline" class="filter-select">
+          <mat-label>Sipariş Durumu</mat-label>
+          <mat-select>
+            <mat-option value="all">Tüm Siparişler</mat-option>
+            <mat-option value="pending">Onay Bekleyen</mat-option>
+            <mat-option value="processing">İşlemde</mat-option>
+            <mat-option value="shipping">Kargoda</mat-option>
+            <mat-option value="cancelled">İptal Edilen</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    
+    <!-- Yükleniyor durumu -->
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Siparişleriniz yükleniyor...</p>
+    </div>
+    
+    <!-- Sipariş yoksa görünüm -->
+    <div *ngIf="!loading && orders.length === 0" class="empty-orders">
+      <div class="empty-content">
+        <mat-icon class="empty-icon">shopping_basket</mat-icon>
+        <h2>Henüz Siparişiniz Bulunmuyor</h2>
+        <p>Siparişleriniz burada listelenecektir. Ürünlerimize göz atarak alışverişe başlayabilirsiniz.</p>
+        <button mat-raised-button color="primary" routerLink="/products">
+          <mat-icon>shopping_cart</mat-icon>
+          Alışverişe Başla
+        </button>
+      </div>
+    </div>
+    
+    <!-- Siparişler listesi -->
+    <div *ngIf="!loading && orders.length > 0" class="orders-list">
+      <div class="order-card" *ngFor="let order of orders" [ngClass]="getStatusCardClass(order.status)" (click)="navigateToOrderDetail(order.id)">
+        <div class="order-header">
+          <div class="order-info">
+            <span class="order-number">#{{order.id}}</span>
+            <span class="order-date">Invalid Date</span>
+          </div>
+          
+          <div class="order-status">
+            <span class="status-badge" [ngClass]="'status-' + order.status.toLowerCase()">
+              <mat-icon>{{getStatusIcon(order.status)}}</mat-icon>
+              {{order.status}}
+            </span>
+          </div>
+        </div>
+        
+        <div class="order-footer">
+          <div class="order-total">
+            <span>Toplam:</span>
+            <span class="price">{{order.totalPrice | currency:'₺'}}</span>
+          </div>
+          
+          <button mat-icon-button class="detail-button" (click)="navigateToOrderDetail(order.id, $event)" matTooltip="Detayları Görüntüle">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </div>
+        
+        <div *ngIf="order.status === 'CANCELLED' && order.refundStatus" class="refund-status">
+          <span [class]="'refund-chip ' + getRefundStatusClass(order.refundStatus)">
+            <mat-icon>{{ getRefundStatusIcon(order.refundStatus) }}</mat-icon>
+            {{ getRefundStatusText(order.refundStatus) }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

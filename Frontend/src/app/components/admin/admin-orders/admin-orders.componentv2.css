@@ -1,0 +1,518 @@
+/* Admin Panel Genel Stiller */
+:root {
+  --primary-color: #4a6cf7;
+  --primary-hover: #3a5fe0;
+  --secondary-color: #6c757d;
+  --success-color: #2dce89;
+  --danger-color: #e53e3e;
+  --warning-color: #ffc107;
+  --light-gray: #f8f9fa;
+  --dark-gray: #343a40;
+  --border-color: #e2e8f0;
+  --border-radius: 8px;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Temel Layout */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fb;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 280px;
+  background-color: #fff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.admin-logo {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-logo h2 {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 70px);
+}
+
+.admin-user-info {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.admin-avatar i {
+  color: white;
+  font-size: 18px;
+}
+
+.admin-user-details h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.admin-user-details span {
+  font-size: 13px;
+  color: var(--secondary-color);
+}
+
+.admin-menu {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.admin-menu li {
+  margin-bottom: 5px;
+}
+
+.admin-menu a {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #5a6473;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-menu a:hover {
+  background-color: rgba(74, 108, 247, 0.1);
+  color: var(--primary-color);
+}
+
+.admin-menu i {
+  margin-right: 12px;
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.admin-menu li.active a {
+  background-color: rgba(74, 108, 247, 0.15);
+  color: var(--primary-color);
+  font-weight: 600;
+  border-left: 3px solid var(--primary-color);
+}
+
+/* Ana İçerik */
+.admin-main {
+  flex: 1;
+  margin-left: 280px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.admin-header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: #333;
+  font-weight: 600;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.admin-search {
+  position: relative;
+}
+
+.admin-search i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+.admin-search input {
+  padding: 10px 12px 10px 35px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  min-width: 220px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.filter-dropdown {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  background-color: white;
+}
+
+/* Kart Stilleri */
+.card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 25px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #f8f9fa;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Tablo Stilleri */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.table tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Sipariş Durumu */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pending {
+  background-color: #ffefc1;
+  color: #b76e00;
+}
+
+.processing {
+  background-color: #c8e7ff;
+  color: #0062cc;
+}
+
+.shipping {
+  background-color: #c8e6fa;
+  color: #1a73e8;
+}
+
+.delivered {
+  background-color: #d1f7c4;
+  color: #2e7d32;
+}
+
+.completed {
+  background-color: #c8ffd8;
+  color: #00a650;
+}
+
+.cancelled {
+  background-color: #ffd1d1;
+  color: #e53935;
+}
+
+/* Ödeme Durumu */
+.payment-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.paid {
+  background-color: #d1f7c4;
+  color: #2e7d32;
+}
+
+.failed {
+  background-color: #ffd1d1;
+  color: #e53935;
+}
+
+.refunded {
+  background-color: #e8eaed;
+  color: #5f6368;
+}
+
+/* Butonlar */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  border: none;
+  margin-right: 5px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-sm i {
+  margin-right: 5px;
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #249e6b;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c53030;
+}
+
+/* Müşteri Bilgileri */
+.customer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-name {
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.customer-email {
+  font-size: 13px;
+  color: #666;
+}
+
+.customer-phone, .customer-id {
+  font-size: 12px;
+  color: #777;
+  margin-top: 3px;
+}
+
+/* Sipariş Bilgileri */
+.order-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-number {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Tarih Bilgileri */
+.date-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-created {
+  font-size: 14px;
+}
+
+.date-updated {
+  font-size: 12px;
+  color: #777;
+  margin-top: 3px;
+}
+
+/* Boş Durum ve Yükleme */
+.empty-state, .loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  color: #666;
+}
+
+.empty-state i, .loading-spinner i {
+  font-size: 40px;
+  margin-bottom: 15px;
+  color: #ccc;
+}
+
+/* Uyarı Mesajları */
+.alert {
+  padding: 15px;
+  border-radius: var(--border-radius);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.alert i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.alert-danger {
+  background-color: #fdecea;
+  color: #ea4335;
+  border-left: 4px solid #ea4335;
+}
+
+/* Animasyon */
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .admin-sidebar {
+    width: 250px;
+  }
+  
+  .admin-main {
+    margin-left: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  
+  .admin-main {
+    margin-left: 0;
+  }
+  
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .admin-actions {
+    margin-top: 15px;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .admin-search {
+    width: 100%;
+  }
+  
+  .admin-search input {
+    width: 100%;
+  }
+  
+  .table td {
+    padding: 10px;
+  }
+  
+  .table th {
+    display: none;
+  }
+  
+  .table tr {
+    display: block;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+  }
+  
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    text-align: right;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+  }
+  
+  .table td:last-child {
+    border-bottom: none;
+  }
+}

@@ -1,0 +1,31 @@
+<div class="brand-filter">
+ <h3>Marka</h3>
+ 
+ <div *ngIf="loading" class="loading">
+   <div class="spinner"></div>
+   Markalar yükleniyor...
+ </div>
+ 
+ <div *ngIf="error" class="error">
+   {{ error }}
+ </div>
+ 
+ <div *ngIf="!loading && !error">
+   <div *ngIf="filteredBrands.length === 0" class="no-brands">
+     Arama sonuçlarında marka bulunamadı.
+   </div>
+   
+   <div class="brand-list" *ngIf="filteredBrands.length > 0">
+     <div class="brand-checkbox" *ngFor="let brand of filteredBrands">
+       <label class="brand-label">
+         <input 
+           type="checkbox" 
+           [checked]="isBrandSelected(brand.id)"
+           (change)="onBrandCheckboxChange(brand.id, $any($event.target).checked)"
+         />
+         {{ brand.name }}
+       </label>
+     </div>
+   </div>
+ </div>
+</div>

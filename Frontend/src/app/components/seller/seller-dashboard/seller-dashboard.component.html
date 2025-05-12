@@ -1,0 +1,313 @@
+<div class="seller-dashboard-container">
+  <div class="dashboard-header">
+    <h1>Mağaza Yönetim Paneli</h1>
+    <div class="user-actions">
+      <button class="logout-button" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+      </button>
+    </div>
+  </div>
+  
+  <div class="seller-welcome">
+    <p>Hoş geldiniz, <strong>{{ currentUser?.name || currentUser?.fullName }}</strong></p>
+    <p>Mağaza sahibi olarak sisteme giriş yaptınız.</p>
+  </div>
+  
+  <!-- Mağaza Seçimi -->
+  <div class="store-selection">
+    <h2><i class="fas fa-store-alt mr-2"></i>Mağazalarınız</h2>
+    
+    <div *ngIf="loadingStores" class="loading-container">
+      <div class="spinner"></div>
+      <p>Mağazalar yükleniyor...</p>
+    </div>
+    
+    <div *ngIf="!loadingStores && stores.length === 0" class="no-stores">
+      <i class="fas fa-store-slash mb-3" style="font-size: 48px; color: #64748b;"></i>
+      <p>Henüz mağazanız bulunmuyor. Yeni bir mağaza açmak için başvuru yapabilirsiniz.</p>
+      <button routerLink="/seller/apply" class="primary-button">
+        <i class="fas fa-plus-circle mr-2"></i>Mağaza Başvurusu Yap
+      </button>
+    </div>
+    
+    <div *ngIf="!loadingStores && stores.length > 0" class="stores-list">
+      <div class="stores-grid">
+        <!-- Tüm mağazalar için genel istatistik seçeneği -->
+        <div class="store-card general-store" 
+             [class.active]="selectedStore === null"
+             (click)="selectStore(null)">
+          <div class="store-card-header">
+            <img src="assets/images/store-all.png" alt="Tüm Mağazalar" class="store-logo">
+          </div>
+          <div class="store-card-body">
+            <h3><i class="fas fa-chart-line mr-2"></i>Tüm Mağazalar</h3>
+            <p class="store-category">Genel İstatistikler</p>
+          </div>
+        </div>
+        
+        <!-- Her bir mağaza için kart -->
+        <div *ngFor="let store of stores" 
+             class="store-card" 
+             [class.active]="selectedStore?.id === store.id"
+             (click)="selectStore(store)">
+          <div class="store-card-header">
+            <img [src]="store.logo || 'assets/images/store-default.png'" alt="{{ store.name }}" class="store-logo">
+          </div>
+          <div class="store-card-body">
+            <h3>{{ store.name }}</h3>
+            <p class="store-category"><i class="fas fa-tag mr-1"></i>{{ store.categories && store.categories.length > 0 ? store.categories[0] : 'Genel' }}</p>
+            <p class="store-status" [ngClass]="'status-' + store.status">
+              <i class="fas {{ 
+                store.status === 'approved' ? 'fa-check-circle' : 
+                store.status === 'pending' ? 'fa-clock' : 
+                store.status === 'banned' ? 'fa-ban' : 
+                store.status === 'rejected' ? 'fa-times-circle' : 'fa-question-circle'
+              }} mr-1"></i>
+              {{ store.status === 'approved' ? 'Aktif' : 
+                 store.status === 'pending' ? 'Onay Bekliyor' : 
+                 store.status === 'banned' ? 'Askıya Alındı' : 
+                 store.status === 'rejected' ? 'Reddedildi' : 'Durum Bilinmiyor' }}
+            </p>
+          </div>
+          <div class="store-card-footer">
+            <button (click)="navigateToStoreDetails(store.id + ''); $event.stopPropagation();" class="secondary-button">
+              <i class="fas fa-external-link-alt mr-1"></i> Detaylar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Yükleniyor ve hata mesajları -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Veriler yükleniyor...</p>
+  </div>
+  
+  <div *ngIf="errorMessage" class="error-message">
+    <i class="fas fa-exclamation-triangle mb-2" style="font-size: 24px;"></i>
+    <p>{{ errorMessage }}</p>
+    <button (click)="loadDashboardData()"><i class="fas fa-sync-alt mr-2"></i>Yeniden Dene</button>
+  </div>
+  
+  <!-- İstatistikler -->
+  <div class="dashboard-content" *ngIf="!isLoading && !errorMessage">
+    <!-- Başlık: Seçili mağaza veya tüm mağazalar -->
+    <div class="selected-store-info">
+      <h2 *ngIf="selectedStore"><i class="fas fa-store mr-2"></i>{{ selectedStore.name }} - İstatistikler</h2>
+      <h2 *ngIf="!selectedStore"><i class="fas fa-chart-pie mr-2"></i>Tüm Mağazalar - Genel İstatistikler</h2>
+      <p *ngIf="selectedStore">{{ selectedStore.description }}</p>
+      <p *ngIf="!selectedStore">Tüm mağazalarınızın birleştirilmiş istatistiklerini görüntülüyorsunuz.</p>
+    </div>
+    
+    <!-- Ana istatistikler kartları -->
+    <div class="stats-cards">
+      <div class="stat-card" *ngFor="let stat of stats" [ngStyle]="{
+        '--card-color': stat.color,
+        '--card-color-rgb': stat.colorRgb || '99, 102, 241'
+      }">
+        <div class="stat-icon">
+          <i [class]="stat.icon"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stat.title }}</h3>
+          <p class="stat-value">
+            <span *ngIf="stat.title === 'Bu Ay Ciro'">{{ formatCurrency(stat.value) }}</span>
+            <span *ngIf="stat.title !== 'Bu Ay Ciro'">{{ stat.value }}</span>
+          </p>
+          
+          <div class="stat-trend" *ngIf="stat.trend !== undefined">
+            <span [ngClass]="{
+              'trend-up': stat.trendDirection === 'up',
+              'trend-down': stat.trendDirection === 'down',
+              'trend-flat': stat.trendDirection === 'flat'
+            }">
+              <i *ngIf="stat.trendDirection === 'up'" class="fas fa-arrow-up"></i>
+              <i *ngIf="stat.trendDirection === 'down'" class="fas fa-arrow-down"></i>
+              <i *ngIf="stat.trendDirection === 'flat'" class="fas fa-minus"></i>
+              {{ stat.trend }}%
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Özet istatistikler ve son siparişler -->
+    <div class="dashboard-grid">
+      <!-- Sol panel: Özet istatistikler -->
+      <div class="dashboard-card summary-card">
+        <h2><i class="fas fa-chart-bar mr-2"></i>Özet İstatistikler</h2>
+        <div class="summary-stats">
+          <div class="summary-item">
+            <div class="summary-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="summary-info">
+              <h3>Toplam Ürün</h3>
+              <p>{{ productCount }}</p>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="summary-info">
+              <h3>Toplam Sipariş</h3>
+              <p>{{ orderCount }}</p>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-icon">
+              <i class="fas fa-lira-sign"></i>
+            </div>
+            <div class="summary-info">
+              <h3>Toplam Ciro</h3>
+              <p>{{ formatCurrency(stats[2].value) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sağ panel: Son siparişler -->
+      <div class="dashboard-card orders-card">
+        <h2><i class="fas fa-shopping-bag mr-2"></i>Son Siparişler</h2>
+        <div class="recent-orders" *ngIf="recentOrders.length > 0">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Sipariş No</th>
+                <th>Tarih</th>
+                <th>Müşteri</th>
+                <th>Tutar</th>
+                <th>Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of recentOrders">
+                <td><a [routerLink]="['/seller/orders', order.id]">#{{ order.id }}</a></td>
+                <td>{{ formatDate(order.date) }}</td>
+                <td>{{ order.customer }}</td>
+                <td>{{ formatCurrency(order.amount) }}</td>
+                <td>
+                  <span class="order-status" [ngClass]="getStatusClass(order.status)">
+                    <i class="fas {{ 
+                      order.status === 'pending' ? 'fa-clock' : 
+                      order.status === 'processing' ? 'fa-spinner' : 
+                      order.status === 'shipped' ? 'fa-shipping-fast' : 
+                      order.status === 'delivered' ? 'fa-check-circle' : 
+                      order.status === 'cancelled' ? 'fa-ban' : 'fa-question-circle'
+                    }} mr-1"></i>
+                    {{ getStatusText(order.status) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="no-orders" *ngIf="recentOrders.length === 0">
+          <i class="fas fa-shopping-basket mb-3" style="font-size: 32px; color: #94a3b8;"></i>
+          <p>Henüz sipariş bulunmuyor.</p>
+        </div>
+        <div class="view-all">
+          <button (click)="navigateToOrders()"><i class="fas fa-list-ul mr-2"></i>Tüm Siparişleri Görüntüle</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Hızlı işlemler -->
+    <div class="actions-container">
+      <h2><i class="fas fa-bolt mr-2"></i>Hızlı İşlemler</h2>
+      <div class="actions-grid">
+        <!-- Seçilen store'un ürünlerini düzenle -->
+        <div *ngIf="selectedStore" class="action-card" (click)="navigateToProducts(selectedStore.id)">
+          <div class="action-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="action-text">
+            <h3>{{ selectedStore.name }} Ürünleri</h3>
+            <p>Bu mağazanın ürünlerini düzenleyin</p>
+          </div>
+        </div>
+        
+        <!-- Seçili mağaza varsa mağazaya özel işlemler -->
+        <ng-container *ngIf="selectedStore">
+          <a [routerLink]="['/seller/orders', 'store', selectedStore.id]" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="action-text">
+              <h3>{{ selectedStore.name }} Siparişleri</h3>
+              <p>Bu mağazanın siparişlerini yönetin</p>
+            </div>
+          </a>
+          
+          <a [routerLink]="['/seller/store', selectedStore.id]" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-store"></i>
+            </div>
+            <div class="action-text">
+              <h3>Mağaza Profilini Düzenle</h3>
+              <p>{{ selectedStore.name }} bilgilerini güncelleyin</p>
+            </div>
+          </a>
+          
+          <a [routerLink]="['/seller/products/add/store', selectedStore.id]" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-plus-circle"></i>
+            </div>
+            <div class="action-text">
+              <h3>Yeni Ürün Ekle</h3>
+              <p>{{ selectedStore.name }} mağazasına yeni ürünler ekleyin</p>
+            </div>
+          </a>
+        </ng-container>
+        
+        <!-- Tüm mağazalar seçiliyse genel işlemler -->
+        <ng-container *ngIf="!selectedStore">
+          <a routerLink="/seller/products" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-boxes"></i>
+            </div>
+            <div class="action-text">
+              <h3>Tüm Ürünleri Yönet</h3>
+              <p>Tüm mağazalarınızdaki ürünleri düzenleyin</p>
+            </div>
+          </a>
+          
+          <a routerLink="/seller/orders" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-shopping-basket"></i>
+            </div>
+            <div class="action-text">
+              <h3>Tüm Siparişleri Görüntüle</h3>
+              <p>Bekleyen ve tamamlanan siparişleri yönetin</p>
+            </div>
+          </a>
+          
+          <a routerLink="/seller/stores" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-store-alt"></i>
+            </div>
+            <div class="action-text">
+              <h3>Mağazaları Yönet</h3>
+              <p>Tüm mağazalarınızı düzenleyin</p>
+            </div>
+          </a>
+          
+          <a routerLink="/seller/products/add" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-plus-circle"></i>
+            </div>
+            <div class="action-text">
+              <h3>Yeni Ürün Ekle</h3>
+              <p>Herhangi bir mağazanıza yeni ürünler ekleyin</p>
+            </div>
+          </a>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div> 

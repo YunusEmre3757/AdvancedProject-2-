@@ -1,0 +1,574 @@
+<div class="admin-container">
+  <!-- Admin Sidebar -->
+  <div class="admin-sidebar">
+    <div class="admin-logo">
+      <h2>Admin Panel</h2>
+    </div>
+    <div class="admin-user-info">
+      <div class="admin-avatar">
+        <i class="material-icons">person</i>
+      </div>
+      <div class="admin-user-details">
+        <h4>Admin User</h4>
+        <span>Yönetici</span>
+      </div>
+    </div>
+    <ul class="admin-menu">
+      <li>
+        <a routerLink="/admin/dashboard">
+          <i class="material-icons">dashboard</i>
+          Dashboard
+        </a>
+      </li>
+      <li class="active">
+        <a routerLink="/admin/products">
+          <i class="material-icons">inventory_2</i>
+          Ürünler
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/orders">
+          <i class="material-icons">shopping_cart</i>
+          Siparişler
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/categories">
+          <i class="material-icons">category</i>
+          Kategoriler
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/customers">
+          <i class="material-icons">people</i>
+          Müşteriler
+        </a>
+      </li>
+      <li>
+        <a routerLink="/admin/settings">
+          <i class="material-icons">settings</i>
+          Ayarlar
+        </a>
+      </li>
+    </ul>
+    <div class="admin-logout">
+      <a href="#">
+        <i class="material-icons">exit_to_app</i>
+        Çıkış Yap
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <div class="add-product-container">
+      <div class="admin-header">
+        <h1>Yeni Ürün Ekle</h1>
+        <div class="admin-actions">
+          <button class="btn btn-secondary" (click)="goBack()">
+            <i class="material-icons">arrow_back</i>
+            Ürünlere Dön
+          </button>
+        </div>
+      </div>
+
+      <div class="loading-spinner" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Yükleniyor...</p>
+      </div>
+
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="material-icons">info</i> Temel Bilgiler</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Ürün Adı</mat-label>
+                  <input matInput formControlName="name" placeholder="Ürün adını girin">
+                  <mat-error *ngIf="productForm.get('name')?.hasError('required')">Ürün adı zorunludur</mat-error>
+                  <mat-error *ngIf="productForm.get('name')?.hasError('minlength')">Ürün adı en az 3 karakter olmalıdır</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Ürün Açıklaması</mat-label>
+                  <textarea matInput formControlName="description" rows="4" placeholder="Ürün açıklamasını girin"></textarea>
+                  <mat-error *ngIf="productForm.get('description')?.hasError('required')">Ürün açıklaması zorunludur</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="material-icons">attach_money</i> ₺ Fiyat ve Stok</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <mat-form-field appearance="outline">
+                  <mat-label>Fiyat (₺)</mat-label>
+                  <input matInput type="number" formControlName="price" placeholder="0.00">
+                  <mat-error *ngIf="productForm.get('price')?.hasError('required')">Fiyat zorunludur</mat-error>
+                  <mat-error *ngIf="productForm.get('price')?.hasError('min')">Fiyat 0'dan büyük olmalıdır</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group col-md-6">
+                <mat-form-field appearance="outline">
+                  <mat-label>Stok Miktarı</mat-label>
+                  <input matInput type="number" min="0" formControlName="stockQuantity" placeholder="1" readonly>
+                  <mat-hint>Toplam stok varyantların stok miktarlarına göre otomatik hesaplanır</mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <mat-form-field appearance="outline">
+                  <mat-label>Stok Kodu (SKU)</mat-label>
+                  <input matInput formControlName="sku" placeholder="Stok kodu">
+                </mat-form-field>
+              </div>
+
+              <div class="form-group col-md-6">
+                <mat-checkbox formControlName="isActive">Aktif</mat-checkbox>
+                <mat-checkbox formControlName="isFeatured" class="ml-3">Öne Çıkan</mat-checkbox>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="material-icons">category</i> Kategori ve Marka</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <mat-form-field appearance="outline">
+                  <mat-label>Ana Kategori</mat-label>
+                  <mat-select formControlName="category" (selectionChange)="onCategoryChange($event)">
+                    <mat-option *ngFor="let category of categories" [value]="category.id">
+                      {{ category.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="productForm.get('category')?.hasError('required')">Kategori zorunludur</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group col-md-4">
+                <mat-form-field appearance="outline">
+                  <mat-label>Alt Kategori</mat-label>
+                  <mat-select formControlName="subCategory" (selectionChange)="onSubCategoryChange($event)">
+                    <mat-option *ngFor="let subCategory of subCategories" [value]="subCategory.id">
+                      {{ subCategory.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              
+              <div class="form-group col-md-4">
+                <mat-form-field appearance="outline">
+                  <mat-label>Alt-Alt Kategori</mat-label>
+                  <mat-select formControlName="thirdLevelCategory" (selectionChange)="onThirdLevelCategoryChange($event)">
+                    <mat-option *ngFor="let category of thirdLevelCategories" [value]="category.id">
+                      {{ category.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <mat-form-field appearance="outline">
+                  <mat-label>Marka</mat-label>
+                  <mat-select formControlName="brand">
+                    <mat-option *ngFor="let brand of brands" [value]="brand.id">
+                      {{ brand.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="form-group col-md-6">
+                <mat-form-field appearance="outline">
+                  <mat-label>Mağaza</mat-label>
+                  <mat-select formControlName="store">
+                    <mat-option *ngFor="let store of stores" [value]="store.id">
+                      {{ store.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="productForm.get('store')?.hasError('required')">Mağaza zorunludur</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>
+              <i class="material-icons">grid_view</i> 
+              Ürün Varyantları
+              <button type="button" mat-mini-fab color="primary" (click)="addVariant()" class="ml-2" matTooltip="Yeni varyant ekle">
+                <i class="material-icons">add</i>
+              </button>
+              <button *ngIf="variants.length > 0" type="button" mat-mini-fab color="accent" (click)="updateAllVariantStocks(10)" class="ml-2" matTooltip="Tüm varyantların stok miktarını 10 olarak ayarla">
+                <i class="material-icons">inventory</i>
+              </button>
+            </h3>
+            <div *ngIf="variants.length > 0" class="variant-info">
+              <div class="info-badge">
+                <i class="material-icons">info</i> 
+                Varyant stok miktarları değiştirildiğinde, ürünün toplam stok miktarı otomatik olarak güncellenir.
+                <strong>Toplam Stok: {{ productForm.get('stockQuantity')?.value || 0 }}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="variants.length === 0" class="empty-state">
+              <p>Henüz varyant eklenmedi.</p>
+              <button type="button" class="btn btn-primary" (click)="addVariant()">
+                <i class="material-icons">add</i>
+                Varyant Ekle
+              </button>
+            </div>
+
+            <div formArrayName="variants" class="variants-list">
+              <div *ngFor="let variantForm of variants.controls; let i = index" [formGroupName]="i" class="variant-item">
+                <div class="variant-header">
+                  <h3>Varyant #{{ i + 1 }}</h3>
+                  <button type="button" mat-icon-button color="warn" (click)="removeVariant(i)">
+                    <i class="material-icons">delete</i>
+                  </button>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Stok Kodu (SKU)</mat-label>
+                      <input matInput formControlName="sku" placeholder="Varyant stok kodu">
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-group col-md-6">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Durum</mat-label>
+                      <mat-select formControlName="isActive">
+                        <mat-option [value]="true">Aktif</mat-option>
+                        <mat-option [value]="false">Pasif</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Fiyat (₺)</mat-label>
+                      <input matInput type="number" formControlName="price" placeholder="0.00">
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-group col-md-6">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Stok Miktarı</mat-label>
+                      <input matInput type="number" min="0" formControlName="stockQuantity" placeholder="1">
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Varyant için resim yükleme bölümü -->
+                <div class="variant-images">
+                  <div class="images-container">
+                    <div class="image-upload-section">
+                      <h4>Varyant Resimleri</h4>
+                      <div class="image-upload-wrapper">
+                        <label [for]="'variant-image-upload-' + i" class="image-upload-label">
+                          <div class="upload-button" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onVariantDrop($event, i)">
+                            <i class="material-icons">cloud_upload</i>
+                            <span>Resim Yükle</span>
+                            <small>Dosyaları buraya sürükleyin veya seçmek için tıklayın</small>
+                            <small>JPG, PNG (Maks. 5 resim)</small>
+                          </div>
+                        </label>
+                        <input type="file" [id]="'variant-image-upload-' + i" accept="image/*" multiple (change)="onVariantFileSelected($event, i)" hidden>
+                      </div>
+
+                      <div class="image-preview-container" *ngIf="variantForm.get('imagePreviewUrls')?.value?.length > 0">
+                        <div *ngFor="let imageUrl of variantForm.get('imagePreviewUrls')?.value; let imgIndex = index" class="image-preview-item" [class.main-image]="imgIndex === 0">
+                          <img [src]="imageUrl" alt="Varyant görseli">
+                          <div class="image-actions">
+                            <button type="button" mat-icon-button color="primary" *ngIf="imgIndex !== 0" (click)="setVariantMainImage(i, imgIndex)" matTooltip="Ana görsel yap">
+                              <i class="material-icons">star</i>
+                            </button>
+                            <button type="button" mat-icon-button color="warn" (click)="removeVariantImage(i, imgIndex)" matTooltip="Görseli kaldır">
+                              <i class="material-icons">delete</i>
+                            </button>
+                          </div>
+                          <span class="image-badge" *ngIf="imgIndex === 0">Ana Görsel</span>
+                        </div>
+                      </div>
+
+                      <!-- Ürün önizleme bölümü -->
+                      <div class="product-preview" *ngIf="variantForm.get('imagePreviewUrls')?.value?.length > 0">
+                        <h4>Varyant Önizleme (Alışveriş Sayfası Görünümü)</h4>
+                        <div class="preview-note">
+                          <strong>Not:</strong> Ürününüz müşterilere bu şekilde gösterilecektir.
+                        </div>
+                        <div class="product-card">
+                          <img mat-card-image [src]="variantForm.get('imagePreviewUrls')?.value[0] || 'assets/images/no-image.jpg'" alt="{{ productForm.get('name')?.value || 'Ürün Adı' }}" class="product-image">
+                          <div class="product-details">
+                            <h4>{{ productForm.get('name')?.value || 'Ürün Adı' }} <span *ngIf="getVariantDisplayName(i)">- {{ getVariantDisplayName(i) }}</span></h4>
+                            <p class="product-price">{{ variantForm.get('price')?.value || 0 | currency:'₺' }}</p>
+                            
+                            <!-- Düşük stok uyarısı -->
+                            <div *ngIf="variantForm.get('stockQuantity')?.value > 0 && variantForm.get('stockQuantity')?.value < 5" class="stock-warning">
+                              <i class="material-icons">warning</i> Son {{ variantForm.get('stockQuantity')?.value }} adet!
+                            </div>
+                            
+                            <!-- Görsel rating için örnek (sabit değer) -->
+                            <div class="rating">
+                              <span *ngFor="let star of [1,2,3,4,5]">
+                                <i class="material-icons">star_border</i>
+                              </span>
+                              <span class="review-count">(0)</span>
+                            </div>
+                          </div>
+                          <div class="product-actions">
+                            <button mat-button color="primary" disabled>DETAY</button>
+                            <button mat-raised-button color="accent" [disabled]="variantForm.get('stockQuantity')?.value <= 0">
+                              {{ variantForm.get('stockQuantity')?.value > 0 ? 'SEPETE EKLE' : 'STOKTA YOK' }}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="attribute-header">
+                    <label>Özellikler</label>
+                    <span class="attribute-hint">Değerleri düzenleyebilirsiniz</span>
+                  </div>
+                  
+                  <div class="attributes-panel" formGroupName="attributes">
+                    <div *ngIf="availableAttributes.length === 0" class="empty-attributes">
+                      Lütfen önce bir kategori seçin
+                    </div>
+                    
+                    <div *ngFor="let attr of availableAttributes" class="attribute-item">
+                      <div class="attribute-content">
+                        <div class="attribute-name">
+                          <label [for]="'attr_' + i + '_' + attr.key" class="attribute-label">
+                            {{ attr.key }} <span *ngIf="attr.required" class="required-mark">*</span>
+                          </label>
+                        </div>
+                        <div class="attribute-value">
+                          <!-- Eğer özellik "Renk" ise renk paleti göster -->
+                          <div *ngIf="attr.key === 'Renk'" class="color-selector-container">
+                            <input 
+                              type="text" 
+                              [id]="'attr_' + i + '_' + attr.key"
+                              [formControlName]="attr.key" 
+                              placeholder="Renk seçiniz"
+                              readonly>
+                            
+                            <div class="color-palette">
+                              <div class="color-option-header">
+                                <h4>Renk Seçenekleri</h4>
+                                <small>Listedeki renklerden birini seçiniz</small>
+                              </div>
+                              <div class="color-option" 
+                                   *ngFor="let color of availableColors" 
+                                   [style.backgroundColor]="color.code"
+                                   [style.color]="isLightColor(color.code) ? '#000' : '#fff'"
+                                   [class.active]="getVariantAttributeValue(i, attr.key).toLowerCase() === color.name.toLowerCase()"
+                                   (click)="selectColorWithCode(i, attr.key, color.name, color.code)">
+                                {{ color.name }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- RenkKodu alanı, sadece Renk'ten hemen sonra ve varsa göster -->
+                          <div *ngIf="attr.key === 'RenkKodu'" class="color-code-container">
+                            <input 
+                              type="text" 
+                              [id]="'attr_' + i + '_' + attr.key"
+                              [formControlName]="attr.key" 
+                              placeholder="Renk kodu (örn: #FFFFFF)">
+                          </div>
+                          
+                          <!-- Eğer özellik "Beden" ise beden seçici göster -->
+                          <div *ngIf="attr.key === 'Beden'" class="size-selector-container">
+                            <input 
+                              type="text" 
+                              [id]="'attr_' + i + '_' + attr.key"
+                              [formControlName]="attr.key"
+                              placeholder="Beden seçiniz"
+                              readonly>
+                            
+                            <div class="size-options">
+                              <div class="size-option" 
+                                   *ngFor="let size of attr.values" 
+                                   [class.active]="getVariantAttributeValue(i, attr.key).toUpperCase() === size"
+                                   (click)="selectSize(i, attr.key, size)">
+                                {{ size }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- Numara seçici -->
+                          <div *ngIf="attr.key === 'Numara'" class="size-selector-container">
+                            <input 
+                              type="text" 
+                              [id]="'attr_' + i + '_' + attr.key"
+                              [formControlName]="attr.key"
+                              placeholder="Numara seçiniz"
+                              readonly>
+                            
+                            <div class="size-options">
+                              <div class="size-option" 
+                                   *ngFor="let num of attr.values || ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45']" 
+                                   [class.active]="getVariantAttributeValue(i, attr.key) === num"
+                                   (click)="selectSize(i, attr.key, num)">
+                                {{ num }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- Kapasite seçici -->
+                          <div *ngIf="attr.key === 'Kapasite' || attr.key === 'Storage'" class="size-selector-container">
+                            <input 
+                              type="text" 
+                              [id]="'attr_' + i + '_' + attr.key"
+                              [formControlName]="attr.key"
+                              placeholder="Kapasite seçiniz"
+                              readonly>
+                            
+                            <div class="size-options">
+                              <div class="size-option" 
+                                   *ngFor="let capacity of attr.values || ['64GB', '128GB', '256GB', '512GB', '1TB']" 
+                                   [class.active]="getVariantAttributeValue(i, attr.key) === capacity"
+                                   (click)="selectSize(i, attr.key, capacity)">
+                                {{ capacity }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- Boyut seçici -->
+                          <div *ngIf="attr.key === 'Boyut'" class="size-selector-container">
+                            <input 
+                              type="text" 
+                              [id]="'attr_' + i + '_' + attr.key"
+                              [formControlName]="attr.key"
+                              placeholder="Boyut seçiniz"
+                              readonly>
+                            
+                            <div class="size-options">
+                              <div class="size-option" 
+                                   *ngFor="let size of attr.values || availableSizes2D" 
+                                   [class.active]="getVariantAttributeValue(i, attr.key) === size"
+                                   (click)="selectSize(i, attr.key, size)">
+                                {{ size }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- Diğer özellikler için normal input göster -->
+                          <div *ngIf="attr.type === 'select' && !['Renk', 'RenkKodu', 'Beden', 'Numara', 'Kapasite', 'Storage', 'Boyut'].includes(attr.key)" class="size-selector-container">
+                            <input 
+                              type="text" 
+                              [id]="'attr_' + i + '_' + attr.key"
+                              [formControlName]="attr.key"
+                              placeholder="Değer seçiniz"
+                              readonly>
+                            
+                            <div class="size-options">
+                              <div class="size-option" 
+                                   *ngFor="let value of attr.values || []" 
+                                   [class.active]="getVariantAttributeValue(i, attr.key) === value"
+                                   (click)="selectSize(i, attr.key, value)">
+                                {{ value }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- Serbest metin girişi için basit input -->
+                          <input 
+                            *ngIf="attr.type === 'text' || attr.freeText || (!attr.type && !['Renk', 'RenkKodu', 'Beden', 'Numara', 'Kapasite', 'Storage', 'Boyut'].includes(attr.key))"
+                            type="text" 
+                            [id]="'attr_' + i + '_' + attr.key"
+                            [formControlName]="attr.key"
+                            [placeholder]="'Değer giriniz'">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>
+              <i class="material-icons">photo_library</i> Ürün Resimleri
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="images-container">
+              <div class="image-upload-section">
+                <div class="image-upload-wrapper">
+                  <label for="image-upload" class="image-upload-label">
+                    <div class="upload-button" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+                      <i class="material-icons">cloud_upload</i>
+                      <span>Resim Yükle</span>
+                      <small>Dosyaları buraya sürükleyin veya seçmek için tıklayın</small>
+                      <small>JPG, PNG (Maks. 5 resim)</small>
+                    </div>
+                  </label>
+                  <input type="file" id="image-upload" accept="image/*" multiple (change)="onFileSelected($event)" hidden>
+                </div>
+
+                <div class="image-preview-container" *ngIf="imagePreviewUrls.length > 0">
+                  <div *ngFor="let imageUrl of imagePreviewUrls; let i = index" class="image-preview-item" [class.main-image]="i === 0">
+                    <img [src]="imageUrl" alt="Ürün görseli">
+                    <div class="image-actions">
+                      <button type="button" mat-icon-button color="primary" *ngIf="i !== 0" (click)="setMainImage(i)" matTooltip="Ana görsel yap">
+                        <i class="material-icons">star</i>
+                      </button>
+                      <button type="button" mat-icon-button color="warn" (click)="removeImage(i)" matTooltip="Görseli kaldır">
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </div>
+                    <span class="image-badge" *ngIf="i === 0">Ana Görsel</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="goBack()">İptal</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+            <i class="material-icons" *ngIf="isSubmitting">hourglass_empty</i>
+            <span *ngIf="!isSubmitting">Ürün Ekle</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

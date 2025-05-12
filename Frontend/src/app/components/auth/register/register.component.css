@@ -1,0 +1,268 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2c3e50 0%, #1a1a1a 100%);
+  padding: 20px;
+}
+
+.register-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 600px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.register-header h1 {
+  margin: 0;
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.register-header p {
+  margin: 8px 0 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.name-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.password-requirements {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: -8px;
+}
+
+.password-requirements p {
+  color: #666;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.password-requirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.password-requirements li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.password-requirements li mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.password-requirements li.met {
+  color: #4caf50;
+}
+
+.terms-checkbox {
+  margin: 16px 0;
+}
+
+.terms-text {
+  font-size: 14px;
+  color: #666;
+}
+
+.terms-text a {
+  color: #3f51b5;
+  text-decoration: none;
+}
+
+.terms-text a:hover {
+  text-decoration: underline;
+}
+
+.form-actions {
+  margin-top: 24px;
+}
+
+.register-button {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.error-message {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.success-message {
+  text-align: center;
+  margin-top: 16px;
+  color: #4caf50;
+  background: #e8f5e9;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.login-prompt {
+  margin-top: 32px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-prompt span {
+  color: #666;
+}
+
+/* Verification State Styles */
+.verify-email-state {
+  text-align: center;
+  padding: 20px;
+}
+
+.icon-container {
+  margin: 0 auto 24px;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #e3f2fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-circle mat-icon {
+  font-size: 36px;
+  color: #2196f3;
+}
+
+.button-container {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.gradient-button {
+  background: linear-gradient(135deg, #42a5f5, #2196f3);
+  color: white;
+  border-radius: 24px;
+  padding: 0 24px;
+}
+
+/* Animation Classes */
+.animate-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-up {
+  animation: moveUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-float {
+  animation: floating 3s ease-in-out infinite;
+}
+
+.delay-1 {
+  animation-delay: 0.3s;
+}
+
+.delay-2 {
+  animation-delay: 0.6s;
+}
+
+.delay-3 {
+  animation-delay: 0.9s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes moveUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floating {
+  0% {
+    transform: translate(0, 0px);
+  }
+  50% {
+    transform: translate(0, 10px);
+  }
+  100% {
+    transform: translate(0, 0px);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .register-card {
+    padding: 24px;
+  }
+
+  .name-group {
+    grid-template-columns: 1fr;
+  }
+
+  .register-header h1 {
+    font-size: 24px;
+  }
+}

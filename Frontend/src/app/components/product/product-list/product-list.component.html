@@ -1,0 +1,206 @@
+<!-- Modern Product Listing Page -->
+<div class="container">
+  <div class="product-listing-layout">
+    <!-- Left Sidebar for Filters -->
+    <div class="filters-sidebar">
+      <div class="filters-header">
+        <h3>Filtreler</h3>
+        <button mat-button color="accent" *ngIf="minPrice !== null || maxPrice !== null || selectedBrandIds.length > 0" (click)="clearAllFilters()">
+          <span class="clear-all-text">Tümünü Temizle <mat-icon>refresh</mat-icon></span>
+        </button>
+      </div>
+      
+      <!-- Brand Filter -->
+      <div class="filter-section">
+        <div class="filter-section-header">
+          <h4>Marka</h4>
+          <button *ngIf="selectedBrandIds.length > 0" mat-icon-button color="accent" (click)="clearBrandFilters()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <app-brand-filter 
+          [selectedBrandIds]="selectedBrandIds"
+          [categoryId]="categoryId"
+          [availableBrands]="availableBrands"
+          (brandsSelected)="onBrandFilterChange($event)">
+        </app-brand-filter>
+      </div>
+      
+      <!-- Price Filter -->
+      <div class="filter-section">
+        <div class="filter-section-header">
+          <h4>Fiyat Aralığı</h4>
+          <button *ngIf="minPrice !== null || maxPrice !== null" mat-icon-button color="accent" (click)="clearPriceFilter()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="price-range-inputs">
+          <mat-form-field appearance="outline" class="price-input">
+            <mat-label>Min ₺</mat-label>
+            <input matInput type="number" min="0" [value]="minPrice || ''" #minPriceInput placeholder="Min ₺">
+          </mat-form-field>
+          
+          <span class="price-range-separator">-</span>
+          
+          <mat-form-field appearance="outline" class="price-input">
+            <mat-label>Max ₺</mat-label>
+            <input matInput type="number" min="0" [value]="maxPrice || ''" #maxPriceInput placeholder="Max ₺">
+          </mat-form-field>
+        </div>
+        
+        <button mat-flat-button color="primary" class="apply-btn"
+                (click)="applyPriceFilter(minPriceInput.value ? +minPriceInput.value : null, 
+                                        maxPriceInput.value ? +maxPriceInput.value : null)">
+          <mat-icon>filter_list</mat-icon> Uygula
+        </button>
+      </div>
+      
+      <!-- Additional filters can go here -->
+    </div>
+    
+    <!-- Right Content Area -->
+    <div class="products-content">
+      <!-- Page Header with Title and Sort -->
+      <div class="page-header">
+        <div class="page-title-area">
+          <h1 class="page-title">Ürünler</h1>
+          
+          <div *ngIf="totalItems > 0" class="results-count">{{ totalItems }} ürün bulundu</div>
+        </div>
+        
+        <div class="sorting-controls">
+          <mat-form-field appearance="outline">
+            <mat-label>Sırala</mat-label>
+            <mat-select (selectionChange)="sortProducts($event.value)" [value]="sortOption">
+              <mat-option value="name,asc">İsim (A-Z)</mat-option>
+              <mat-option value="name,desc">İsim (Z-A)</mat-option>
+              <mat-option value="price,asc">Fiyat (Düşükten Yükseğe)</mat-option>
+              <mat-option value="price,desc">Fiyat (Yüksekten Düşüğe)</mat-option>
+              <mat-option value="createdAt,desc">Yeni Eklenenler</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      
+      <!-- Active Filters Display -->
+      <div *ngIf="minPrice !== null || maxPrice !== null" class="active-filters">
+        <div class="active-filter-tag">
+          <span>Fiyat: {{ minPrice || '0' }} ₺ - {{ maxPrice || 'Maksimum' }} ₺</span>
+          <button mat-icon-button class="remove-filter" (click)="clearPriceFilter()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Loading, Error and Empty States -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Ürünler yükleniyor...</p>
+      </div>
+
+      <div *ngIf="error" class="error-message">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error }}</p>
+        <button mat-raised-button color="primary" (click)="loadProducts()">Tekrar Dene</button>
+      </div>
+
+      <div *ngIf="!loading && !error && products.length === 0" class="empty-message">
+        <mat-icon>search_off</mat-icon>
+        <p>Aradığınız kriterlere uygun ürün bulunamadı.</p>
+        <button mat-stroked-button color="primary" (click)="clearAllFilters()">Filtreleri Temizle</button>
+      </div>
+
+      <!-- Products Grid -->
+      <div *ngIf="!loading && !error && products.length > 0" class="products-grid">
+        <div class="product-card" *ngFor="let product of products">
+          <div class="card-inner" [routerLink]="['/products', product.id]">
+            <!-- Resim Carousel -->
+            <div class="product-image-container">
+              <!-- Carousel Kontrolleri -->
+              <button class="carousel-control prev" (click)="prevImage(product); $event.stopPropagation()" *ngIf="product.allImageUrls && product.allImageUrls.length > 1">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              
+              <!-- Ana görsel veya carousel görüntüleri -->
+              <div class="carousel-container">
+                <ng-container *ngIf="product.allImageUrls && product.allImageUrls.length > 0; else noProductImages">
+                  <!-- Carousel içindeki resimler -->
+                  <div class="carousel-slide" *ngFor="let imageUrl of product.allImageUrls; let imgIndex = index" 
+                       [class.active]="imgIndex === (product.currentImageIndex || 0)">
+                    <img [src]="adjustImageUrl(imageUrl, product)" 
+                         [alt]="product.name"
+                         (error)="handleImageError(product, imgIndex)"
+                         loading="lazy">
+                  </div>
+                </ng-container>
+                
+                <!-- Ürünün bir resim dizisi yoksa tek resmi göster -->
+                <ng-template #noProductImages>
+                  <div class="carousel-slide active">
+                    <ng-container *ngIf="product.imageUrl && !product.imageFailedToLoad; else noImage">
+                      <img [src]="adjustImageUrl(product.imageUrl, product)" 
+                           [alt]="product.name"
+                           (error)="product.imageFailedToLoad = true"
+                           loading="lazy">
+                    </ng-container>
+                    
+                    <!-- Resim yoksa veya hatalıysa yedek resmi göster -->
+                    <ng-template #noImage>
+                      <img src="http://localhost:8080/api/files/common/no-image.jpg" [alt]="product.name">
+                    </ng-template>
+                  </div>
+                </ng-template>
+              </div>
+              
+              <button class="carousel-control next" (click)="nextImage(product); $event.stopPropagation()" *ngIf="product.allImageUrls && product.allImageUrls.length > 1">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+              
+              <!-- Resim göstergeleri (dots) -->
+              <div class="carousel-indicators" *ngIf="product.allImageUrls && product.allImageUrls.length > 1">
+                <span class="indicator-dot" 
+                      *ngFor="let img of product.allImageUrls; let dotIndex = index" 
+                      [class.active]="dotIndex === (product.currentImageIndex || 0)"
+                      (click)="setActiveImage(product, dotIndex); $event.stopPropagation()"></span>
+              </div>
+            </div>
+            
+            <!-- Product Info -->
+            <div class="product-info">
+              <div class="brand-name" *ngIf="product.brand?.name">{{ product.brand?.name }}</div>
+              <h3 class="product-title">{{ product.name }}</h3>
+              
+              <div class="product-meta">
+                <div class="price-container">
+                  <span class="discounted-price">{{ product.price | currency:'₺' }}</span>
+                </div>
+                
+                <div class="rating" *ngIf="product.rating">
+                  <span class="stars">
+                    <mat-icon *ngFor="let star of [1,2,3,4,5]" class="star-icon">
+                      {{ star <= product.rating ? 'star' : (star-0.5 <= product.rating ? 'star_half' : 'star_border') }}
+                    </mat-icon>
+                  </span>
+                  <span class="review-count" *ngIf="product.reviewCount">({{ product.reviewCount }})</span>
+                </div>
+              </div>
+              
+              <!-- Stock Status -->
+              <div class="stock-status" *ngIf="product.stock > 0 && product.stock < 5">
+                <mat-icon>warning</mat-icon> Son {{ product.stock }} adet!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator *ngIf="totalItems > 0"
+                  [length]="totalItems"
+                  [pageSize]="size"
+                  [pageSizeOptions]="[12, 24, 48]"
+                  (page)="handlePageEvent($event)">
+      </mat-paginator>
+    </div>
+  </div>
+</div> 

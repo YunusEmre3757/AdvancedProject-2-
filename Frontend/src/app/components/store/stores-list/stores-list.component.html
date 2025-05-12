@@ -1,0 +1,71 @@
+<div class="container">
+ <div class="header">
+   <h1>Mağaza Keşfi</h1>
+   <p>Tarzınıza uygun mağazaları keşfedin ve alışverişin tadını çıkarın</p>
+ </div>
+
+ <div *ngIf="loading" class="loading-container">
+   <mat-spinner diameter="50" color="primary"></mat-spinner>
+ </div>
+
+ <div *ngIf="error" class="error-message">
+   <mat-icon>sentiment_very_dissatisfied</mat-icon>
+   <p>Mağazaları yüklerken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</p>
+   <button mat-raised-button (click)="loadStores()">Tekrar Dene</button>
+ </div>
+
+ <div *ngIf="!loading && !error" class="stores-grid">
+   <div *ngFor="let store of stores; let i = index" class="store-card-wrapper" [style.animation-delay]="i * 0.1 + 's'">
+     <mat-card class="store-card" [routerLink]="['/stores', store.id, 'products']">
+       <div class="store-logo">
+         <img [src]="store.logo || 'assets/images/store-placeholder.png'" [alt]="store.name">
+       </div>
+       <div class="store-info">
+         <div class="store-header">
+           <h2>{{ store.name }}</h2>
+           <!-- Şimdilik varsayılan olarak verified ikonu göstermeyelim -->
+         </div>
+         
+         <div class="store-rating" *ngIf="store.rating">
+           <div class="rating">
+             <mat-icon>star</mat-icon>
+             <span>{{ store.rating | number:'1.1-1' }}</span>
+           </div>
+           <span class="followers" *ngIf="store.followers">{{ store.followers }} takipçi</span>
+         </div>
+         
+         <p class="store-description">{{ store.description || 'Bu mağaza henüz bir açıklama eklememiş.' }}</p>
+         
+         <div class="store-categories" *ngIf="store.categories && store.categories.length > 0">
+           <mat-chip-listbox aria-label="Mağaza Kategorileri">
+             <mat-chip *ngFor="let category of store.categories?.slice(0, 3)" class="category-chip">
+               {{ category }}
+             </mat-chip>
+             <mat-chip *ngIf="store.categories && store.categories.length > 3" class="more-chip">
+               +{{ store.categories.length - 3 }}
+             </mat-chip>
+           </mat-chip-listbox>
+         </div>
+         
+         <div class="store-products" *ngIf="store.productsCount">
+           <mat-icon>inventory_2</mat-icon>
+           <span>{{ store.productsCount }} ürün bulunuyor</span>
+         </div>
+       </div>
+       
+       <div class="store-actions">
+         <button mat-flat-button class="view-store-btn" [routerLink]="['/stores', store.id, 'products']">
+           Mağazaya Git
+           <mat-icon>arrow_forward</mat-icon>
+         </button>
+       </div>
+     </mat-card>
+   </div>
+ </div>
+
+ <div *ngIf="!loading && !error && stores?.length === 0" class="empty-state">
+   <mat-icon>store_off</mat-icon>
+   <h3>Mağaza Bulunamadı</h3>
+   <p>Henüz mağaza eklenmemiş veya aradığınız kriterlere uygun mağaza bulunmuyor.</p>
+ </div>
+</div> 

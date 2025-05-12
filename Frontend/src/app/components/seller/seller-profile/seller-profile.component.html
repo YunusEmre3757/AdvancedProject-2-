@@ -1,0 +1,165 @@
+<div class="seller-profile-container">
+  <div class="header-section">
+    <div class="left-section">
+      <button class="back-button" (click)="router.navigate(['/seller/dashboard'])">
+        <i class="fas fa-arrow-left"></i> Dashboard'a Dön
+      </button>
+      <h1>Mağaza Profili</h1>
+    </div>
+    
+    <div class="user-actions">
+      <button class="logout-button" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+      </button>
+    </div>
+  </div>
+  
+  <!-- Yükleniyor durumu -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Mağaza bilgileri yükleniyor...</p>
+  </div>
+  
+  <!-- Hata mesajı -->
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="loadStoreDetails(storeId)" class="retry-btn">Tekrar Dene</button>
+  </div>
+  
+  <!-- Başarı mesajı -->
+  <div *ngIf="success" class="success-message">
+    <p>{{ success }}</p>
+  </div>
+  
+  <div *ngIf="!isLoading && !error" class="profile-content">
+    <div class="card store-info-card">
+      <div class="card-header">
+        <div class="store-logo-container">
+          <img [src]="store.logo || 'assets/images/logo-placeholder.png'" alt="Mağaza Logosu" class="store-logo">
+          <button class="change-logo-btn" (click)="triggerLogoUpload()">
+            <i class="fas fa-camera"></i> Logo Değiştir
+          </button>
+          <input type="file" #logoFileInput id="logo-upload" (change)="changeLogo($event)" style="display: none" accept="image/*">
+        </div>
+        
+        <!-- Mağaza Durumu -->
+        <div class="store-status-container">
+          <div class="status-display">
+            <h3>Mağaza Durumu</h3>
+            <span class="status-pill" [ngClass]="getStatusClass(store.status)">
+              {{ getStatusText(store.status) }}
+            </span>
+          </div>
+          <div class="status-selector" *ngIf="store.status !== 'rejected' && store.status !== 'banned'">
+            <label for="store-status">Durumu Güncelle:</label>
+            <select id="store-status" name="status" [(ngModel)]="store.status" (change)="updateStoreStatus()">
+              <option *ngFor="let option of statusOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            <small *ngIf="store.status === 'inactive'">* Mağazanız pasif durumdayken müşteriler ürünlerinizi göremez.</small>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Banner Image Section -->
+      <div class="banner-image-section">
+        <div class="section-title">
+          <h2>Mağaza Banner Görseli</h2>
+          <p>Mağaza sayfanızda görünecek banner</p>
+        </div>
+        
+        <div class="banner-preview" *ngIf="store.bannerImage || showBannerPreview">
+          <img [src]="store.bannerImage || 'assets/images/banner-placeholder.png'" alt="Mağaza Banner" class="banner-image">
+        </div>
+        
+        <div class="banner-upload">
+          <button class="upload-banner-btn" (click)="triggerBannerUpload()">
+            <i class="fas fa-upload"></i> Banner Yükle
+          </button>
+          <input type="file" #bannerFileInput id="banner-upload" (change)="changeBanner($event)" style="display: none" accept="image/*">
+          <span class="upload-hint">Önerilen boyut: 1200x300 piksel</span>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <div class="section-title">
+          <h2>Mağaza Bilgileri</h2>
+          <p>Müşterilerinizin göreceği bilgileri güncelleyin</p>
+        </div>
+        
+        <form class="profile-form" (ngSubmit)="saveStoreProfile()">
+          <div class="form-group">
+            <label for="store-name">Mağaza Adı</label>
+            <input type="text" id="store-name" name="name" [(ngModel)]="store.name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="store-description">Mağaza Açıklaması</label>
+            <textarea id="store-description" name="description" [(ngModel)]="store.description" rows="4"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="store-email">E-posta</label>
+              <input type="email" id="store-email" name="contactEmail" [(ngModel)]="store.contactEmail" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="store-phone">Telefon</label>
+              <input type="tel" id="store-phone" name="contactPhone" [(ngModel)]="store.contactPhone">
+              <span class="error-text" *ngIf="phoneError">{{ phoneError }}</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="store-address">Adres</label>
+            <input type="text" id="store-address" name="address" [(ngModel)]="store.address">
+          </div>
+          
+          <div class="form-group">
+            <label for="store-website">Web Sitesi</label>
+            <input type="url" id="store-website" name="website" [(ngModel)]="store.website">
+          </div>
+          
+          <!-- Sosyal Medya Bağlantıları -->
+          <div class="social-media-section">
+            <h3>Sosyal Medya Bağlantıları</h3>
+            
+            <div class="social-media-fields">
+              <div class="form-group">
+                <label for="social-facebook">
+                  <i class="fab fa-facebook"></i> Facebook
+                </label>
+                <input type="url" id="social-facebook" name="facebook" [(ngModel)]="store.facebook" placeholder="Facebook sayfanızın URL'i">
+              </div>
+              
+              <div class="form-group">
+                <label for="social-instagram">
+                  <i class="fab fa-instagram"></i> Instagram
+                </label>
+                <input type="url" id="social-instagram" name="instagram" [(ngModel)]="store.instagram" placeholder="Instagram profilinizin URL'i">
+              </div>
+              
+              <div class="form-group">
+                <label for="social-twitter">
+                  <i class="fab fa-twitter"></i> Twitter
+                </label>
+                <input type="url" id="social-twitter" name="twitter" [(ngModel)]="store.twitter" placeholder="Twitter profilinizin URL'i">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="router.navigate(['/seller/dashboard'])">İptal</button>
+            <button type="submit" class="save-btn" [disabled]="isLoading">
+              <i class="fas fa-save"></i>
+              <span *ngIf="isLoading">Kaydediliyor...</span>
+              <span *ngIf="!isLoading">Değişiklikleri Kaydet</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

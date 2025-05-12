@@ -1,0 +1,180 @@
+<div class="order-detail-container">
+  <div class="header">
+    <div class="left-section">
+      <button class="back-button" (click)="goBack()">
+        <i class="material-icons">arrow_back</i>
+        Siparişlere Dön
+      </button>
+      <h1>Sipariş Detayı</h1>
+    </div>
+    
+    <div class="user-actions">
+      <button class="logout-button" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+      </button>
+    </div>
+  </div>
+
+  <!-- Yükleniyor göstergesi -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Sipariş detayları yükleniyor...</p>
+  </div>
+
+  <!-- Hata mesajı -->
+  <div *ngIf="error && !loading" class="error-message">
+    <h3>Hata Oluştu</h3>
+    <p>{{ error }}</p>
+    <button (click)="loadOrderDetails()">Yeniden Dene</button>
+  </div>
+
+  <!-- Sipariş detayları -->
+  <div *ngIf="order && !loading" class="order-content">
+    <!-- Sipariş başlık bölümü -->
+    <div class="order-header-card">
+      <div class="order-title">
+        <h2>Sipariş #{{ order.id }}</h2>
+      </div>
+      <div class="order-status-badge">
+        <span [class]="'status-badge ' + getStatusClass(order.status)">{{ getStatusText(order.status) }}</span>
+      </div>
+    </div>
+    
+    <!-- Müşteri bilgileri -->
+    <div class="info-section">
+      <div class="section-title">
+        <h3>MÜŞTERİ BİLGİLERİ</h3>
+      </div>
+      <div class="section-content">
+        <div class="info-row">
+          <span class="info-label">Ad Soyad:</span>
+          <span class="info-value">{{ order.userName || order.customerName || 'Belirtilmemiş' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">E-posta:</span>
+          <span class="info-value">{{ order.userEmail || order.customerEmail || 'Belirtilmemiş' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Telefon:</span>
+          <span class="info-value">{{ order.userPhoneNumber || order.customerPhone || 'Belirtilmemiş' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teslimat bilgileri -->
+    <div class="info-section">
+      <div class="section-title">
+        <h3>TESLİMAT BİLGİLERİ</h3>
+      </div>
+      <div class="section-content">
+        <div class="info-row">
+          <span class="info-label">Adres:</span>
+          <span class="info-value">{{ order.address || order.shippingAddress || 'Belirtilmemiş' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Satıcı bilgilendirme -->
+    <div class="info-section">
+      <div class="section-title">
+        <h3>SATICI BİLGİLENDİRME</h3>
+      </div>
+      <div class="section-content">
+        <div class="info-message">
+          <div class="info-icon-container">
+            <i class="material-icons">info</i>
+          </div>
+          <p>Bu siparişte sadece kendi mağazanıza ait ürünlerin durumunu güncelleyebilirsiniz. Her ürün için işlemler ürün detayında bulunmaktadır.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sipariş ürünleri -->
+    <div class="order-items-section">
+      <h3>Sipariş Ürünleri</h3>
+      
+      <div class="items-list">
+        <div *ngFor="let item of order.items" class="order-item">
+          <div class="item-image"></div>
+          
+          <div class="item-details">
+            <h4>{{ item.productName }}</h4>
+            
+            <div class="item-info">
+              <p><i class="material-icons">inventory_2</i> Adet: {{ item.quantity }}</p>
+              <p><i class="material-icons">payments</i> Fiyat: {{ item.price | currency:'₺' }}</p>
+              <p class="item-price"><i class="material-icons">shopping_cart</i> Toplam: {{ item.price * item.quantity | currency:'₺' }}</p>
+            </div>
+            
+            <div class="item-status">
+              <p><strong>Durum:</strong> 
+                <span [class]="'status-badge ' + getStatusClass(item.status || order.status)">
+                  {{ getStatusText(item.status || order.status) }}
+                </span>
+              </p>
+            </div>
+            
+            <!-- Ürün durumu güncelleme - sadece satıcının kendi ürünleri için -->
+            <div class="item-actions" *ngIf="item.storeId === storeId">
+              <select 
+                [disabled]="item.status === 'DELIVERED' || item.status === 'CANCELLED' || item.status === 'SHIPPING'"
+                (change)="updateItemStatus(item.id, $any($event.target).value)">
+                <option value="" disabled selected>Durum seç...</option>
+                <option *ngFor="let status of getAvailableStatusOptions(item)" [value]="status.value" [selected]="item.status === status.value">
+                  {{ status.label }}
+                </option>
+              </select>
+              
+              <!-- Kargoya ver bölümü - işlemdeki ürünler için -->
+              <div *ngIf="item.status === 'PROCESSING'" class="tracking-input-group">
+                <input type="text" [(ngModel)]="itemTrackingNumbers[item.id]" placeholder="Kargo takip numarası girin">
+                <button 
+                  [disabled]="!itemTrackingNumbers[item.id] || itemTrackingNumbers[item.id].trim() === ''" 
+                  (click)="updateItemTrackingNumber(item.id)" 
+                  class="ship-btn">
+                  <i class="material-icons">local_shipping</i>
+                  Kargoya Ver
+                </button>
+              </div>
+            </div>
+            
+            <!-- Diğer satıcılara ait ürünler için bilgi mesajı -->
+            <div class="item-actions" *ngIf="item.storeId !== storeId">
+              <div class="info-message">
+                <i class="material-icons info-icon">info</i>
+                <span>Bu ürün mağazanıza ait değil. Sadece kendi ürünlerinizi yönetebilirsiniz.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Ödeme bilgileri -->
+    <div class="payment-section">
+      <h3>Ödeme Bilgileri</h3>
+      <div class="payment-details">
+        <table>
+          <tr>
+            <th>Ödeme Yöntemi</th>
+            <td>{{ order.paymentMethod || 'Belirtilmemiş' }}</td>
+          </tr>
+          <tr>
+            <th>Ödeme Durumu</th>
+            <td>{{ order.paymentStatus || 'Belirtilmemiş' }}</td>
+          </tr>
+          <tr class="total">
+            <th>Toplam Tutar</th>
+            <td>{{ (order.totalPrice || order.total) | currency:'₺' }}</td>
+          </tr>
+        </table>
+        
+        <div *ngIf="order.refundStatus" class="refund-info">
+          <h4><i class="material-icons">currency_exchange</i> İade Bilgileri</h4>
+          <p><strong>İade Durumu:</strong> {{ order.refundStatus }}</p>
+          <p *ngIf="order.refundAmount"><strong>İade Tutarı:</strong> {{ order.refundAmount | currency:'₺' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

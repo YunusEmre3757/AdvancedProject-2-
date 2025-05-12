@@ -1,0 +1,269 @@
+<!-- Black Banner -->
+<div class="black-banner">
+ <div class="container">
+   <div class="banner-content">
+     <div class="message-container">
+       <!--         <span [ngClass]="{'fade': fadeAnimation}">{{currentPromoMessage}}</span>
+-->
+
+     </div>
+   </div>
+ </div>
+</div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+ <div class="container">
+   <div class="top-bar-content">
+     <div class="top-links">
+       <a routerLink="/profile">yardım</a>
+       <a *ngIf="!isLoggedIn" routerLink="/auth/register">üye ol</a>
+       <a *ngIf="isLoggedIn" routerLink="/favorites">favori listesi</a>
+       <a *ngIf="isLoggedIn" routerLink="/orders">siparişler ve iade</a>
+       <a routerLink="/auth/store-application" class="create-store-link">Marketini Yarat</a>
+       <img src="assets/images/tr.png" alt="TR" class="flag-icon">
+     </div>
+   </div>
+ </div>
+</div>
+
+<!-- Main Header -->
+<header class="main-header">
+ <div class="container">
+   <div class="header-content">
+     <!-- Logo -->
+     <a routerLink="/home" class="logo">
+       <img src="assets/images/adidas-logo.svg" alt="Adidas">
+     </a>
+
+     <!-- Main Navigation -->
+     <nav class="main-nav">
+       <ul>
+         <li class="category-menu-container">
+           <a href="javascript:void(0)" 
+              (click)="toggleCategoryMenu($event)"
+              #categoryButton>
+             Tüm Kategoriler
+             <i class="fas fa-chevron-down"></i>
+           </a>
+           <div class="mega-menu" 
+                [class.show]="isCategoryMenuOpen"
+                (mouseenter)="onMenuMouseEnter()"
+                (mouseleave)="onMenuMouseLeave()"
+                #megaMenu>
+             <div class="mega-menu-content">
+               <!-- Main categories column (left) -->
+               <div class="main-categories-column">
+                 <a class="main-category-link" *ngFor="let category of categories" 
+                    [class.active]="category === activeCategory"
+                    (mouseenter)="setActiveCategory(category)"
+                    [routerLink]="['/products']" 
+                    [queryParams]="{category: category.slug || category.name.toLowerCase()}">
+                   {{ category.name }}
+                   <i class="fas fa-chevron-right"></i>
+                 </a>
+               </div>
+               
+               <!-- Subcategories column (middle) -->
+               <div class="subcategories-column" *ngIf="activeCategory">
+                 <a class="subcategory-link" *ngFor="let subcat of activeCategory.subcategories"
+                    [class.active]="subcat === activeSubcategory"
+                    (mouseenter)="setActiveSubcategory(subcat)"
+                    [routerLink]="['/products']" 
+                    [queryParams]="{category: subcat.slug || subcat.name.toLowerCase()}">
+                   {{ subcat.name }}
+                 </a>
+               </div>
+               
+               <!-- Sub-subcategories column (right) -->
+               <div class="subsubcategories-column" *ngIf="activeSubcategory">
+                 <div class="subsubcategory-list">
+                   <a class="subsubcategory-link" *ngFor="let item of activeSubcategory.subcategories"
+                      [routerLink]="['/products']" 
+                      [queryParams]="{category: item.slug || item.name.toLowerCase()}">
+                     {{ item.name }}
+                   </a>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </li>
+         <li><a [routerLink]="['/products']" [queryParams]="{category: 'erkek'}" routerLinkActive="active">ERKEK</a></li>
+         <li><a [routerLink]="['/products']" [queryParams]="{category: 'kadin'}" routerLinkActive="active">KADIN</a></li>
+         <li><a [routerLink]="['/products']" [queryParams]="{category: 'cocuk'}" routerLinkActive="active">ÇOCUK</a></li>
+         <li><a routerLink="/yeniler" routerLinkActive="active">YENİLER</a></li>
+       </ul>
+     </nav>
+
+     <!-- Right Actions -->
+     <div class="header-actions">
+       <div class="search-box">
+         <input type="text" 
+                placeholder="Ne aramıştınız?" 
+                [(ngModel)]="searchQuery" 
+                (keyup)="onSearchKeyUp($event)"
+                (keyup.enter)="onSearch()"
+                (focus)="showSearchSuggestions = true"
+                #searchInput>
+         <button (click)="onSearch()">
+           <i class="fas fa-search"></i>
+         </button>
+         
+         <!-- Search Suggestions Dropdown -->
+         <div class="search-suggestions" *ngIf="showSearchSuggestions && (searchSuggestions.length > 0 || recentSearches.length > 0 || suggestedMarkets.length > 0)">
+           <!-- Markets Section -->
+           <div class="suggestion-section" *ngIf="suggestedMarkets.length > 0">
+             <h4>Marketler</h4>
+             <ul>
+               <li *ngFor="let market of suggestedMarkets" (click)="navigateToMarket(market)">
+                 <div class="suggestion-item">
+                   <div class="suggestion-icon">
+                     <i class="fas fa-store"></i>
+                   </div>
+                   <div class="suggestion-content">
+                     <span [innerHTML]="highlightMatch(market.name, searchQuery)"></span>
+                   </div>
+                   <div class="suggestion-type">
+                     Market
+                   </div>
+                 </div>
+               </li>
+             </ul>
+           </div>
+
+           <div class="suggestion-section" *ngIf="searchSuggestions.length > 0">
+             <h4>Öneriler</h4>
+             <ul>
+               <li *ngFor="let suggestion of searchSuggestions" (click)="selectSearchSuggestion(suggestion)">
+                 <div class="suggestion-item">
+                   <div class="suggestion-icon">
+                     <i class="fas fa-search"></i>
+                   </div>
+                   <div class="suggestion-content">
+                     <span [innerHTML]="highlightMatch(suggestion.text, searchQuery)"></span>
+                   </div>
+                   <div class="suggestion-type">
+                     {{ suggestion.type }}
+                   </div>
+                 </div>
+               </li>
+             </ul>
+           </div>
+           
+           <div class="suggestion-section" *ngIf="recentSearches.length > 0">
+             <h4>Son Aramalar</h4>
+             <ul>
+               <li *ngFor="let recent of recentSearches" (click)="selectSearchSuggestion(recent)">
+                 <div class="suggestion-item">
+                   <div class="suggestion-icon">
+                     <i class="fas fa-history"></i>
+                   </div>
+                   <div class="suggestion-content">
+                     <span>{{ recent }}</span>
+                   </div>
+                   <div class="suggestion-action">
+                     <i class="fas fa-times remove-icon" (click)="removeRecentSearch($event, recent)"></i>
+                   </div>
+                 </div>
+               </li>
+             </ul>
+             <div class="clear-all" (click)="clearAllRecentSearches($event)">Tümünü Temizle</div>
+           </div>
+           
+           <div class="popular-searches" *ngIf="showPopularSearches && popularSearches.length > 0">
+             <h4>Popüler Aramalar</h4>
+             <div class="tags">
+               <span 
+                 *ngFor="let popularSearch of popularSearches" 
+                 class="tag"
+                 (click)="onPopularTagClick(popularSearch)">
+                 {{ popularSearch.text }}
+               </span>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       <div class="user-actions">
+         <div class="action-item user-menu-container">
+           <div class="user-icon" (click)="toggleUserMenu($event)">
+             <i class="fas fa-user"></i>
+           </div>
+           <div class="user-dropdown" [class.show]="isUserMenuOpen">
+             <!-- Giriş yapmamış kullanıcılar için -->
+             <ng-container *ngIf="!isLoggedIn">
+               <a routerLink="/auth/login" class="dropdown-item">
+                 <i class="fas fa-sign-in-alt"></i>
+                 <span>Giriş Yap</span>
+               </a>
+               <a routerLink="/auth/register" class="dropdown-item">
+                 <i class="fas fa-user-plus"></i>
+                 <span>Üye Ol</span>
+               </a>
+             </ng-container>
+
+             <!-- Giriş yapmış kullanıcılar için -->
+             <ng-container *ngIf="isLoggedIn">
+               <a routerLink="/profile" class="dropdown-item">
+                 <i class="fas fa-user"></i>
+                 <span>Profilim</span>
+               </a>
+               <a routerLink="/orders" class="dropdown-item">
+                 <i class="fas fa-box"></i>
+                 <span>Siparişlerim</span>
+               </a>
+               <a routerLink="/favorites" class="dropdown-item">
+                 <i class="fas fa-heart"></i>
+                 <span>Favorilerim</span>
+               </a>
+               <a routerLink="/notifications" class="dropdown-item">
+                 <i class="fas fa-bell"></i>
+                 <span>Bildirimlerim</span>
+               </a>
+               <a routerLink="/settings" class="dropdown-item">
+                 <i class="fas fa-cog"></i>
+                 <span>Ayarlar</span>
+               </a>
+               <div class="dropdown-divider"></div>
+               <a (click)="logout()" class="dropdown-item">
+                 <i class="fas fa-sign-out-alt"></i>
+                 <span>Çıkış Yap</span>
+               </a>
+             </ng-container>
+           </div>
+         </div>
+         <div class="action-item">
+           <a routerLink="/favorites" class="favorites-link">
+             <i class="fas fa-heart"></i>
+             <div class="badge-container" *ngIf="favoriteCount > 0">
+               <span class="badge">{{favoriteCount}}</span>
+             </div>
+           </a>
+         </div>
+         <div class="action-item">
+           <a routerLink="/cart" class="cart-link">
+             <i class="fas fa-shopping-cart"></i>
+             <div class="badge-container" *ngIf="cartCount > 0">
+               <span class="badge">{{cartCount}}</span>
+             </div>
+           </a>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+</header>
+
+<!-- Sub Menu -->
+<nav class="sub-menu">
+ <div class="container">
+   <ul>
+     <li><a routerLink="/yeni-sezon" routerLinkActive="active"><i class="fas fa-star"></i>Yeni Sezon</a></li>
+     <li><a routerLink="/cok-satanlar" routerLinkActive="active"><i class="fas fa-fire"></i>Çok Satanlar</a></li>
+     <li><a routerLink="/kampanyalar" routerLinkActive="active"><i class="fas fa-tag"></i>Kampanyalar</a></li>
+     <li><a routerLink="/products" routerLinkActive="active"><i class="fas fa-box"></i>Ürünler</a></li>
+     <li><a routerLink="/stores" routerLinkActive="active"><i class="fas fa-store"></i>Marketler</a></li>
+     <li><a routerLink="/home" routerLinkActive="active"><i class="fas fa-home"></i>Ana Sayfa</a></li>
+   </ul>
+ </div>
+</nav> 

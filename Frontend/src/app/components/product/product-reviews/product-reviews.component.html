@@ -1,0 +1,200 @@
+<div class="reviews-container">
+  <!-- Dialog Başlığı (Sadece dialog modunda gösteriliyor) -->
+  <div class="dialog-header" *ngIf="dialogRef">
+    <h2>Müşteri Değerlendirmeleri</h2>
+    <button mat-icon-button (click)="closeDialog()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Değerlendirme Özeti -->
+  <div class="review-summary" *ngIf="reviewSummary">
+    <h2 *ngIf="!dialogRef">Müşteri Değerlendirmeleri</h2>
+    
+    <div class="summary-content">
+      <div class="summary-rating">
+        <div class="average-rating">
+          <span class="rating-value">{{ reviewSummary.averageRating | number:'1.1-1' }}</span>
+          <div class="stars">
+            <mat-icon *ngFor="let star of getStarArray(5)" [class.filled]="star <= reviewSummary.averageRating">
+              {{ star <= reviewSummary.averageRating ? 'star' : 'star_border' }}
+            </mat-icon>
+          </div>
+          <span class="total-count">{{ reviewSummary.totalReviewCount }} değerlendirme</span>
+        </div>
+      </div>
+      
+      <div class="rating-bars">
+        <div class="rating-bar-item" *ngFor="let star of [5,4,3,2,1]">
+          <div class="star-label">
+            <span>{{ star }}</span>
+            <mat-icon>star</mat-icon>
+          </div>
+          <div class="progress-container">
+            <mat-progress-bar 
+              mode="determinate" 
+              [value]="reviewSummary.totalReviewCount > 0 ? (reviewSummary.ratingDistribution[star] / reviewSummary.totalReviewCount * 100) : 0">
+            </mat-progress-bar>
+          </div>
+          <span class="count">{{ reviewSummary.ratingDistribution[star] || 0 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Giriş yapılmamışsa değerlendirme uyarısı -->
+  <div class="login-required" *ngIf="!isLoggedIn">
+    <mat-icon color="primary">info</mat-icon>
+    <p>Değerlendirme yapabilmek için <a routerLink="/login" [queryParams]="{returnUrl: '/products/' + productId}">giriş yapmalısınız</a>.</p>
+  </div>
+
+  <!-- Ürünü satın almamış kullanıcılar için uyarı -->
+  <div class="login-required" *ngIf="isLoggedIn && !hasPurchasedProduct">
+    <mat-icon color="primary">info</mat-icon>
+    <p>Değerlendirme yapabilmek için bu ürünü satın almanız gerekmektedir.</p>
+  </div>
+
+  <!-- Değerlendirmenizi Yazın butonu (sadece giriş yapmış ve ürünü satın almış kullanıcılar için) -->
+  <div class="write-review-button-container" *ngIf="isLoggedIn && hasPurchasedProduct && !showReviewForm">
+    <button mat-raised-button color="primary" (click)="toggleReviewForm()">
+      <mat-icon>rate_review</mat-icon> Değerlendirmenizi Yazın
+    </button>
+  </div>
+  
+  <!-- Değerlendirme Formu (gizli ve açılabilir, sadece satın alan kullanıcılar için) -->
+  <div class="review-form-container" *ngIf="isLoggedIn && hasPurchasedProduct && showReviewForm">
+    <div class="form-header">
+      <h3>Değerlendirmenizi Yazın</h3>
+      <button mat-icon-button (click)="toggleReviewForm()" class="close-form-button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
+      <div class="form-rating">
+        <span>Puanınız:</span>
+        <div class="star-rating">
+          <button type="button" 
+                  *ngFor="let star of getStarArray(5)" 
+                  mat-icon-button 
+                  [color]="star <= reviewForm.value.rating ? 'accent' : ''"
+                  (click)="reviewForm.get('rating')?.setValue(star)">
+            <mat-icon>{{ star <= reviewForm.value.rating ? 'star' : 'star_border' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Başlık</mat-label>
+        <input matInput formControlName="title" placeholder="Değerlendirmeniz için bir başlık yazın">
+        <mat-error *ngIf="reviewForm.get('title')?.hasError('required')">Başlık gereklidir</mat-error>
+        <mat-error *ngIf="reviewForm.get('title')?.hasError('minlength')">Başlık en az 5 karakter olmalıdır</mat-error>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Yorum</mat-label>
+        <textarea matInput formControlName="comment" rows="5" placeholder="Değerlendirmenizi yazın"></textarea>
+        <mat-error *ngIf="reviewForm.get('comment')?.hasError('required')">Yorum gereklidir</mat-error>
+        <mat-error *ngIf="reviewForm.get('comment')?.hasError('minlength')">Yorum en az 10 karakter olmalıdır</mat-error>
+      </mat-form-field>
+      
+      <div class="form-actions">
+        <button type="button" mat-button (click)="toggleReviewForm()">İptal</button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="shouldDisableSubmit()">
+          <mat-icon>rate_review</mat-icon> Değerlendirmeyi Gönder
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Filtreleme ve Sıralama -->
+  <div class="review-filters">
+    <div class="filter-by-rating">
+      <span>Filtrele:</span>
+      <button mat-button 
+              [class.active]="selectedRating === 0"
+              (click)="filterByRating(0)">
+        Tümü
+      </button>
+      <button mat-button 
+              *ngFor="let star of [5,4,3,2,1]" 
+              [class.active]="selectedRating === star"
+              (click)="filterByRating(star)">
+        {{ star }} <mat-icon>star</mat-icon>
+      </button>
+    </div>
+    
+    <div class="sort-options">
+      <span>Sırala:</span>
+      <button mat-button [class.active]="sortOption === 'newest'" (click)="sortReviews('newest')">
+        En Yeni
+      </button>
+      <button mat-button [class.active]="sortOption === 'oldest'" (click)="sortReviews('oldest')">
+        En Eski
+      </button>
+      <button mat-button [class.active]="sortOption === 'helpful'" (click)="sortReviews('helpful')">
+        En Yararlı
+      </button>
+    </div>
+  </div>
+  
+  <!-- Değerlendirme Listesi -->
+  <div class="reviews-list">
+    <div class="loading-spinner" *ngIf="isReviewsLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    
+    <div class="no-reviews" *ngIf="!isReviewsLoading && (!reviews || reviews.length === 0)">
+      <mat-icon>sentiment_dissatisfied</mat-icon>
+      <p>Henüz değerlendirme yapılmamış.</p>
+    </div>
+    
+    <div class="review-item" *ngFor="let review of reviews">
+      <div class="review-header">
+        <div class="user-info">
+          <div class="avatar" [style.background-image]="review.userAvatar ? 'url(' + review.userAvatar + ')' : ''">
+            <mat-icon *ngIf="!review.userAvatar">person</mat-icon>
+          </div>
+          <div class="user-details">
+            <div class="user-name">{{ review.userName }}</div>
+            <div class="review-date">{{ formatDate(review.createdAt) }}</div>
+          </div>
+        </div>
+        
+        <div class="review-rating">
+          <mat-icon *ngFor="let star of getStarArray(5)" [class.filled]="star <= review.rating">
+            {{ star <= review.rating ? 'star' : 'star_border' }}
+          </mat-icon>
+        </div>
+      </div>
+      
+      <div class="review-content">
+        <h3 class="review-title">{{ review.title }}</h3>
+        <p class="review-comment">{{ review.comment }}</p>
+      </div>
+      
+      <div class="review-footer">
+        <div class="review-labels">
+          <span class="verified-badge" *ngIf="review.verifiedPurchase">
+            <mat-icon>verified</mat-icon> Onaylanmış Satın Alma
+          </span>
+        </div>
+        
+        <button mat-button color="primary" class="helpful-button" 
+                (click)="markAsHelpful(review.id)"
+                [ngClass]="{'already-marked': review.isMarkedHelpful}">
+          <mat-icon>{{ review.isMarkedHelpful ? 'thumb_up_alt' : 'thumb_up' }}</mat-icon>
+          Yararlı ({{ review.helpfulCount }})
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sayfalama -->
+  <mat-paginator *ngIf="totalElements > 0"
+                [length]="totalElements"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="pageSizeOptions"
+                (page)="onPageChange($event)">
+  </mat-paginator>
+</div> 

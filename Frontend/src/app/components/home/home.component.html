@@ -1,0 +1,216 @@
+<div class="home-container">
+ <!-- Hero Slider Section -->
+ <section class="hero-slider">
+   <div class="slider-container">
+     <div class="slide" *ngFor="let slide of slides; let i = index" 
+          [class.active]="currentSlide === i"
+          [attr.data-image]="slide.image">
+       <div class="slide-image" [style.background-image]="'url(' + slide.image + ')'"></div>
+       <div class="slide-overlay"></div>
+       <div class="slide-content">
+         <h2>{{ slide.title }}</h2>
+         <p>{{ slide.description }}</p>
+         <a [routerLink]="getSlideRoute(slide.link)" [queryParams]="getSlideQueryParams(slide.link)" class="slide-button">
+           <span>Ürünleri İncele</span>
+           <mat-icon>arrow_forward</mat-icon>
+         </a>
+       </div>
+     </div>
+   </div>
+
+   <!-- Slider Controls -->
+   <div class="slider-controls">
+     <button class="prev-button" (click)="previousSlide()">
+       <mat-icon>chevron_left</mat-icon>
+     </button>
+     <div class="slider-dots">
+       <div
+         class="dot"
+         *ngFor="let slide of slides; let i = index"
+         [class.active]="currentSlide === i"
+         (click)="goToSlide(i)"
+       ></div>
+     </div>
+     <button class="next-button" (click)="nextSlide()">
+       <mat-icon>chevron_right</mat-icon>
+     </button>
+   </div>
+ </section>
+
+ <!-- Featured Categories -->
+ <section class="featured-categories">
+   <div class="section-header">
+     <h2>Popüler Kategoriler</h2>
+     <p>Sizin için seçtiğimiz özel koleksiyonlar</p>
+   </div>
+   <div class="category-grid">
+     <div class="category-card" *ngFor="let category of categories; let i = index" [class.animate-up]="true" [style.animation-delay]="i * 0.1 + 's'">
+      <div class="category-image">
+        <img *ngIf="i === 0" src="assets/images/pexels-willianjusten-792345.jpg" [alt]="category.name">
+        <img *ngIf="i === 1" src="assets/images/pexels-amar-8167375.jpg" [alt]="category.name">
+        <img *ngIf="i === 2" src="assets/images/yucel-moran-WPqcd-gpJeE-unsplash.jpg" [alt]="category.name">
+        <img *ngIf="i === 3" src="assets/images/dylan-nolte-ITDjGji__6Y-unsplash.jpg" [alt]="category.name">
+        <img *ngIf="i === 4" src="assets/images/pexels-noah-erickson-97554-404280.jpg" [alt]="category.name"> 
+        <img *ngIf="i === 5" src="assets/images/nordwood-themes-bJjsKbToY34-unsplash.jpg" [alt]="category.name"> 
+        <img *ngIf="i === 6" src="assets/images/cookie-the-pom-gySMaocSdqs-unsplash.jpg" [alt]="category.name"> 
+        <img *ngIf="i === 7" src="assets/images/jaron-mobley-4v9L08IcZLM-unsplash.jpg" [alt]="category.name">
+        <img *ngIf="i === 8" src="assets/images/vaido-un1RE76gHDg-unsplash.jpg" [alt]="category.name">
+        <img *ngIf="i === 9" src="assets/images/pexels-mart-production-9558602.jpg" [alt]="category.name">
+        <img *ngIf="i === 10" src="assets/images/Eco-Friendly-Made-in-the-USA-Womens-Clothing.jpg" [alt]="category.name">
+        <img *ngIf="i === 11" src="assets/images/gia-oris-LgiAq4E-rHU-unsplash.jpg" [alt]="category.name">  
+        <img *ngIf="i === 12" src="assets/images/yanhao-fang-RGjhAu8XLS8-unsplash.jpg" [alt]="category.name">
+        <img *ngIf="i === 13" src="assets/images/mobilya.jpeg" [alt]="category.name">
+        <img *ngIf="i === 14" src="assets/images/android telefon.webp" [alt]="category.name">
+        <img *ngIf="i === 15" src="assets/images/iphone.webp" [alt]="category.name">
+        <img *ngIf="i === 16" src="assets/images/dizüstü bilgisayar.webp" [alt]="category.name">
+        <img *ngIf="i === 17" src="assets/images/masaüstü bilgisayar.webp" [alt]="category.name">
+        <img *ngIf="i === 18" src="assets/images/erkek tişört.jpeg" [alt]="category.name">
+        <img *ngIf="i === 19" src="assets/images/Kadın Bluz & Tişört.jpeg" [alt]="category.name">
+        <img *ngIf="i === 20" src="assets/images/Kadın Elbise.jpeg" [alt]="category.name">
+        <img *ngIf="i === 21" src="assets/images/Koşu Ayakkabıları.jpeg" [alt]="category.name">
+        <img *ngIf="i === 22" src="assets/images/Günlük Ayakkabılar.jpeg" [alt]="category.name">
+        <img *ngIf="i === 23" src="assets/images/Erkek Çocuk Giyim.webp" [alt]="category.name">
+        <img *ngIf="i === 24" src="assets\images\pexels-photo-5194742.webp" [alt]="category.name">  
+        <img *ngIf="i === 25" src="assets/images/Android Tabletler.jpeg" [alt]="category.name">
+        <img *ngIf="i === 26" src="assets/images/iPad & iOS Tabletler.webp" [alt]="category.name">
+        <img *ngIf="i === 27" src="assets/images/Koltuk Takımları.jpg" [alt]="category.name">
+        
+        
+      </div> 
+       <div class="category-content">
+         <h3>{{category.name}}</h3>
+         <p>{{category.description}}</p>
+         <a [routerLink]="['/products']" [queryParams]="{category: category.slug}" class="category-button">
+           <span>Keşfet</span>
+           <mat-icon>arrow_forward</mat-icon>
+         </a>
+       </div>
+     </div>
+   </div>
+ </section>
+
+ <!-- New Arrivals -->
+ <section class="new-arrivals">
+   <div class="section-header">
+     <h2>Yeni Gelenler</h2>
+     <p>En yeni ürünlerimizi keşfedin</p>
+   </div>
+   <div class="product-grid">
+     <div class="product-card" *ngFor="let product of newArrivals; let i = index" [class.animate-up]="true" [style.animation-delay]="i * 0.1 + 's'">
+       <div class="product-image">
+         <!-- Resim Carousel -->
+         <div class="image-carousel">
+           <!-- Carousel içinde resim kontrolcüleri -->
+           <button class="carousel-control prev" (click)="prevImage(product)" *ngIf="product.allImageUrls && product.allImageUrls.length > 1">
+             <mat-icon>chevron_left</mat-icon>
+           </button>
+           
+           <!-- Ana görsel veya carousel görüntüleri -->
+           <div class="carousel-container">
+             <ng-container *ngIf="product.allImageUrls && product.allImageUrls.length > 0; else noImages">
+               <!-- Carousel içindeki resimler -->
+               <div class="carousel-slide" *ngFor="let imageUrl of product.allImageUrls; let imgIndex = index" 
+                    [class.active]="imgIndex === (product.currentImageIndex || 0)">
+                 <img [src]="adjustImageUrl(imageUrl, product)" 
+                      [alt]="product.name"
+                      (error)="handleImageError(product, imgIndex)">
+               </div>
+             </ng-container>
+             
+             <!-- Resim yoksa yedek resmi göster -->
+             <ng-template #noImages>
+               <div class="carousel-slide active">
+                 <img src="http://localhost:8080/api/files/common/no-image.jpg" [alt]="product.name">
+               </div>
+             </ng-template>
+           </div>
+           
+           <button class="carousel-control next" (click)="nextImage(product)" *ngIf="product.allImageUrls && product.allImageUrls.length > 1">
+             <mat-icon>chevron_right</mat-icon>
+           </button>
+           
+           <!-- Resim göstergeleri (dots) -->
+           <div class="carousel-indicators" *ngIf="product.allImageUrls && product.allImageUrls.length > 1">
+             <span class="indicator-dot" 
+                   *ngFor="let img of product.allImageUrls; let dotIndex = index" 
+                   [class.active]="dotIndex === (product.currentImageIndex || 0)"
+                   (click)="setActiveImage(product, dotIndex)"></span>
+           </div>
+         </div>
+
+         <div class="product-actions">
+           <button class="action-button" [routerLink]="['/products', product.id]" matTooltip="Detayları Gör">
+             <mat-icon>visibility</mat-icon>
+           </button>
+         </div>
+       </div>
+       <div class="product-info">
+         <h3>{{product.name}}</h3>
+         <div class="product-meta">
+           <span class="price">{{product.price | currency:'TRY'}}</span>
+           <div class="rating" *ngIf="product.rating">
+             <mat-icon>star</mat-icon>
+             <span>{{product.rating}}</span>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+ </section>
+
+ <!-- Featured Collection -->
+ <section class="featured-collection parallax-section">
+   <div class="parallax-background" style="background-image: url('http://localhost:8080/api/files/common/venti-views-Z296_iJ-MLo-unsplash.jpg');"></div>
+   <div class="parallax-content">
+     <div class="collection-content">
+       <h2 class="animate-up">Öne Çıkan Koleksiyon</h2>
+       <p class="animate-up delay-1">Sezonun en çok tercih edilen parçaları</p>
+       <div class="collection-stats animate-up delay-2">
+         <div class="stat-item">
+           <span class="stat-number">500+</span>
+           <span class="stat-label">Ürün</span>
+         </div>
+         <div class="stat-item">
+           <span class="stat-number">50+</span>
+           <span class="stat-label">Marka</span>
+         </div>
+         <div class="stat-item">
+           <span class="stat-number">%30</span>
+           <span class="stat-label">İndirim</span>
+         </div>
+       </div>
+       <a [routerLink]="['/products']" [queryParams]="{featured: 'true'}" class="collection-button animate-up delay-3">
+         <span>Koleksiyonu Keşfet</span>
+         <mat-icon>arrow_forward</mat-icon>
+       </a>
+     </div>
+   </div>
+ </section>
+
+ <!-- Newsletter -->
+ <section class="newsletter">
+   <div class="newsletter-content">
+     <div class="newsletter-text">
+       <h2 class="animate-up">Yeniliklerden Haberdar Olun</h2>
+       <p class="animate-up delay-1">Özel kampanyalar ve yeni koleksiyonlardan ilk siz haberdar olun</p>
+     </div>
+     <form (ngSubmit)="subscribeNewsletter()" class="newsletter-form animate-up delay-2">
+       <mat-form-field appearance="outline">
+         <mat-label>E-posta Adresiniz</mat-label>
+         <input matInput type="email" [(ngModel)]="email" name="email" required email>
+         <mat-icon matSuffix>mail</mat-icon>
+         <mat-error *ngIf="newsletterForm?.get('email')?.hasError('required')">
+           E-posta adresi gereklidir
+         </mat-error>
+         <mat-error *ngIf="newsletterForm?.get('email')?.hasError('email')">
+           Geçerli bir e-posta adresi giriniz
+         </mat-error>
+       </mat-form-field>
+       <button mat-raised-button color="primary" type="submit">
+         <span>Abone Ol</span>
+         <mat-icon>send</mat-icon>
+       </button>
+     </form>
+   </div>
+ </section>
+</div>

@@ -1,0 +1,327 @@
+<!-- Admin Stores Management -->
+<div class="admin-container">
+  <!-- Sidebar - Now Fixed -->
+  <div class="admin-sidebar">
+    <div class="admin-logo">
+      <h2>Admin Panel</h2>
+    </div>
+    <div class="admin-nav">
+      <div class="admin-user-info">
+        <div class="admin-avatar">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="admin-user-details">
+          <h4>Admin</h4>
+          <span>Yönetici</span>
+        </div>
+      </div>
+      <ul class="admin-menu">
+        <li>
+          <a routerLink="/admin/dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/products">
+            <i class="fas fa-box"></i>
+            <span>Ürünler</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/orders">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Siparişler</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/users">
+            <i class="fas fa-users"></i>
+            <span>Kullanıcılar</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pending-users">
+            <i class="fas fa-user-clock"></i>
+            <span>Bekleyen Kullanıcılar</span>
+          </a>
+        </li>
+        <li class="active">
+          <a routerLink="/admin/stores">
+            <i class="fas fa-store"></i>
+            <span>Mağazalar</span>
+          </a>
+        </li>
+      </ul>
+      <div class="admin-logout">
+        <a href="#" (click)="logout($event)">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Çıkış</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <div class="admin-header">
+      <h1>Mağaza Yönetimi</h1>
+    </div>
+    
+    <div class="admin-content">
+      <div class="card mb-4">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'stores'" href="javascript:void(0)" (click)="setActiveTab('stores')">
+                Mağaza Yönetimi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [class.active]="activeTab === 'applications'" href="javascript:void(0)" (click)="setActiveTab('applications')">
+                Başvuru Yönetimi
+                <span *ngIf="hasPendingApplications()" class="badge bg-danger ms-1">
+                  {{ getPendingApplicationCount() }}
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="card-body">
+          <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+          
+          <!-- Mağaza Yönetimi Sekmesi -->
+          <div *ngIf="activeTab === 'stores'">
+            <!-- Status Filtreleme -->
+            <div class="mb-4 status-filters">
+              <div class="btn-group" role="group">
+                <button 
+                  (click)="filterStoresByStatus('all')" 
+                  class="btn" 
+                  [class.btn-primary]="statusFilter === 'all'"
+                  [class.btn-outline-primary]="statusFilter !== 'all'">
+                  Tümü
+                </button>
+                <button 
+                  (click)="filterStoresByStatus('approved')" 
+                  class="btn" 
+                  [class.btn-success]="statusFilter === 'approved'"
+                  [class.btn-outline-success]="statusFilter !== 'approved'">
+                  Onaylı
+                </button>
+                <button 
+                  (click)="filterStoresByStatus('pending')" 
+                  class="btn" 
+                  [class.btn-warning]="statusFilter === 'pending'"
+                  [class.btn-outline-warning]="statusFilter !== 'pending'">
+                  Beklemede
+                </button>
+                <button 
+                  (click)="filterStoresByStatus('rejected')" 
+                  class="btn" 
+                  [class.btn-danger]="statusFilter === 'rejected'"
+                  [class.btn-outline-danger]="statusFilter !== 'rejected'">
+                  Reddedilmiş
+                </button>
+                <button 
+                  (click)="filterStoresByStatus('banned')" 
+                  class="btn" 
+                  [class.btn-dark]="statusFilter === 'banned'"
+                  [class.btn-outline-dark]="statusFilter !== 'banned'">
+                  Yasaklı
+                </button>
+                <button 
+                  (click)="filterStoresByStatus('inactive')" 
+                  class="btn" 
+                  [class.btn-secondary]="statusFilter === 'inactive'"
+                  [class.btn-outline-secondary]="statusFilter !== 'inactive'">
+                  Pasif
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Logo</th>
+                    <th>Mağaza Adı</th>
+                    <th>Açıklama</th>
+                    <th>Değerlendirme</th>
+                    <th>Ürün Sayısı</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="!loading.stores">
+                  <tr *ngFor="let store of filteredStores">
+                    <td>
+                      <img [src]="store.logo || 'assets/images/store-placeholder.png'" 
+                          alt="{{ store.name }}" class="store-logo">
+                    </td>
+                    <td>{{ store.name }}</td>
+                    <td>{{ store.description ? store.description.substring(0, 50) + (store.description.length > 50 ? '...' : '') : '-' }}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <i class="fas fa-star text-warning me-1"></i>
+                        <span>{{ store.rating || 'Yeni' }}</span>
+                      </div>
+                    </td>
+                    <td>{{ store.productsCount || 0 }}</td>
+                    <td>
+                      <span class="status-pill" [ngClass]="getStatusClass(store.status)">
+                        {{ getStatusText(store.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        <!-- Detay butonu her durum için gösterilir -->
+                        <button class="btn-sm btn-info" title="Detayları göster">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        
+                        <!-- Ban butonu (Yasak olmayan mağazalar için) -->
+                        <button *ngIf="store.status !== 'banned'" 
+                                class="btn-sm btn-dark"
+                                title="Mağazayı yasakla"
+                                (click)="banStore(store.id)">
+                          <i class="fas fa-ban"></i>
+                        </button>
+                        
+                        <!-- Unban butonu (Yasaklı mağazalar için) -->
+                        <button *ngIf="store.status === 'banned'" 
+                                class="btn-sm btn-success"
+                                title="Mağaza yasağını kaldır"
+                                (click)="unbanStore(store.id)">
+                          <i class="fas fa-unlock"></i>
+                        </button>
+                        
+                        <!-- Inactive butonu (Onaylı mağazalar için) -->
+                        <button *ngIf="store.status === 'approved'" 
+                                class="btn-sm btn-secondary"
+                                title="Mağazayı pasif yap"
+                                (click)="setStoreInactive(store.id)">
+                          <i class="fas fa-power-off"></i>
+                        </button>
+                        
+                        <!-- Onaylama butonu (Bekleyen, Pasif veya Reddedilmiş mağazalar için) -->
+                        <button *ngIf="store.status === 'pending' || store.status === 'rejected' || store.status === 'inactive'" 
+                                class="btn-sm btn-success"
+                                title="Mağazayı onayla"
+                                (click)="approveStore(store.id)">
+                          <i class="fas fa-check"></i>
+                        </button>
+                        
+                        <!-- Reddetme butonu (Bekleyen veya Onaylı mağazalar için) -->
+                        <button *ngIf="store.status === 'pending' || store.status === 'approved'" 
+                                class="btn-sm btn-danger"
+                                title="Mağazayı reddet"
+                                (click)="rejectStore(store.id)">
+                          <i class="fas fa-times"></i>
+                        </button>
+                        
+                        <!-- Silme butonu her durum için gösterilir -->
+                        <button class="btn-sm btn-danger" 
+                                title="Mağazayı ve tüm ürünlerini kalıcı olarak sil" 
+                                (click)="deleteStore(store.id)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="loading.stores">
+                  <tr>
+                    <td colspan="7" class="text-center py-4">
+                      <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Yükleniyor...</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="!loading.stores && filteredStores.length === 0">
+                  <tr>
+                    <td colspan="7" class="text-center py-4">
+                      <div class="empty-state">
+                        <i class="fas fa-store-slash"></i>
+                        <p>Mağaza bulunamadı</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Başvuru Yönetimi Sekmesi -->
+          <div *ngIf="activeTab === 'applications'">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Mağaza Adı</th>
+                    <th>Logo</th>
+                    <th>Başvuru Sahibi</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="!loading.applications">
+                  <tr *ngFor="let app of storeApplications">
+                    <td><strong>{{ app.name }}</strong></td>
+                    <td>{{ app.logo ? 'Logo mevcut' : 'Logo yok' }}</td>
+                    <td>{{ app.owner }}</td>
+                    <td>
+                      <span class="status-pill" [ngClass]="getStatusClass(app.status)">
+                        {{ getStatusText(app.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-sm btn-success" 
+                                *ngIf="app.status === 'pending'"
+                                (click)="updateStoreApplication(app.id || '', 'approved')">
+                          <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn-sm btn-danger" 
+                                *ngIf="app.status === 'pending'"
+                                (click)="updateStoreApplication(app.id || '', 'rejected')">
+                          <i class="fas fa-times"></i>
+                        </button>
+                        <button class="btn-sm btn-info">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="loading.applications">
+                  <tr>
+                    <td colspan="5" class="text-center py-4">
+                      <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Yükleniyor...</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="!loading.applications && storeApplications.length === 0">
+                  <tr>
+                    <td colspan="5" class="text-center py-4">
+                      <div class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Mağaza başvurusu bulunamadı</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

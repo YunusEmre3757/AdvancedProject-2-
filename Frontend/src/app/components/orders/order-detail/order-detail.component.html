@@ -1,0 +1,189 @@
+<div class="order-detail-container">
+  <div class="container">
+    <div class="header-actions">
+      <button mat-icon-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="page-title">Sipariş Detayı</h1>
+    </div>
+    
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+    
+    <div *ngIf="error && !loading" class="error-container">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <h2>Sipariş Bulunamadı</h2>
+      <p>İstediğiniz sipariş bilgilerine ulaşılamadı.</p>
+      <button mat-raised-button color="primary" (click)="goBack()">
+        Siparişlerime Dön
+      </button>
+    </div>
+    
+    <div *ngIf="order && !loading" class="order-content">
+      <mat-card class="order-summary-card">
+        <mat-card-header>
+          <div class="order-header-content">
+            <div class="order-id">
+              <span class="label">Sipariş Numarası:</span>
+              <span class="value">#{{ order.orderNumber }}</span>
+            </div>
+            <div class="order-date">
+              <span class="label">Tarih:</span>
+              <span class="value">{{ formatDate(order.date) }}</span>
+            </div>
+            <div class="order-status">
+              <span class="label">Durum:</span>
+              <span [class]="'status-chip ' + getStatusClass(order.status)">
+                <mat-icon>{{ getStatusIcon(order.status) }}</mat-icon>
+                {{ order.status }}
+              </span>
+            </div>
+          </div>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="detail-section address-section">
+            <h3>Teslimat Adresi</h3>
+            <p class="address">{{ order.address }}</p>
+          </div>
+          
+          <div *ngIf="hasTrackingNumbersForShipping()" class="detail-section tracking-section">
+            <h3>Kargo Takip Numaraları</h3>
+            <div *ngFor="let item of getItemsWithTrackingNumberAndShipping()">
+              <p class="tracking-info">
+                <span class="product-name">{{ item.productName }}:</span>
+                <span class="tracking-number">{{ item.trackingNumber }}</span>
+                <a mat-stroked-button color="primary" href="https://www.example.com/track/{{ item.trackingNumber }}" target="_blank">
+                  <mat-icon>local_shipping</mat-icon>
+                  Kargoyu Takip Et
+                </a>
+              </p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="order-items-card">
+        <mat-card-header>
+          <mat-card-title>Sipariş Ürünleri</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="order-items-list">
+            <div *ngFor="let item of order.items" class="order-item">
+              <div class="item-image" (click)="navigateToProduct(item.productId)">
+                <img [src]="item.image" [alt]="item.productName">
+              </div>
+              <div class="item-details">
+                <h4 class="item-name" (click)="navigateToProduct(item.productId)">
+                  {{ item.productName }}
+                </h4>
+                <div class="item-info">
+                  <div class="item-price-quantity">
+                    <span class="item-quantity">{{ item.quantity }} adet</span>
+                    <span class="item-price">{{ item.price | currency:'₺' }}</span>
+                  </div>
+                  <div *ngIf="item.status" class="item-status">
+                    <span class="label">Durum:</span>
+                    <span [class]="'status-chip ' + getStatusClass(item.status)">
+                      <mat-icon>{{ getStatusIcon(item.status) }}</mat-icon>
+                      {{ item.status }}
+                    </span>
+                  </div>
+                </div>
+                <div class="item-total">
+                  <span class="label">Ara Toplam:</span>
+                  <span class="value">{{ item.price * item.quantity | currency:'₺' }}</span>
+                </div>
+                
+                <!-- Ürün iptal butonu - Sadece beklemede veya işleniyor durumundaki öğeler için -->
+                <div *ngIf="item.status === 'PENDING' || item.status === 'PROCESSING'" class="item-actions">
+                  <button mat-button color="warn" (click)="cancelOrderItem(order.id, item.id)" class="cancel-item-btn">
+                    <mat-icon>remove_shopping_cart</mat-icon>
+                    Ürünü İptal Et
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="order-summary-card">
+        <mat-card-header>
+          <mat-card-title>Sipariş Özeti</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="price-summary">
+            <div class="summary-line">
+              <span>Ara Toplam:</span>
+              <span>{{ order.totalPrice | currency:'₺' }}</span>
+            </div>
+            <div class="summary-line">
+              <span>Kargo Ücreti:</span>
+              <span>Ücretsiz</span>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="summary-line total-line">
+              <span>Toplam:</span>
+              <span>{{ order.totalPrice | currency:'₺' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+        
+        <mat-card-actions *ngIf="order.status === 'PENDING'">
+          <button mat-raised-button color="warn" (click)="cancelOrder(order.id)">
+            <mat-icon>cancel</mat-icon>
+            Siparişi İptal Et
+          </button>
+        </mat-card-actions>
+      </mat-card>
+      
+      <!-- Ödeme ve İade Bilgileri -->
+      <mat-card *ngIf="order.paymentMethod || order.refundId" class="order-summary-card payment-refund-card">
+        <mat-card-header>
+          <mat-card-title>Ödeme ve İade Bilgileri</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div *ngIf="order.paymentMethod" class="detail-section payment-section">
+            <h3>Ödeme Bilgileri</h3>
+            <div class="info-line">
+              <span class="label">Ödeme Yöntemi:</span>
+              <span class="value">{{ getPaymentMethodText(order.paymentMethod) }}</span>
+            </div>
+            <div *ngIf="order.paymentIntentId" class="info-line">
+              <span class="label">Ödeme Referans No:</span>
+              <span class="value">{{ order.paymentIntentId }}</span>
+            </div>
+          </div>
+          
+          <div *ngIf="order.refundId" class="detail-section refund-section">
+            <h3>İade Bilgileri</h3>
+            <div class="info-line">
+              <span class="label">İade Durumu:</span>
+              <span class="value" [ngClass]="getRefundStatusClass(order.refundStatus)">
+                <mat-icon>{{ getRefundStatusIcon(order.refundStatus) }}</mat-icon>
+                {{ getRefundStatusText(order.refundStatus) }}
+              </span>
+            </div>
+            <div *ngIf="order.refundAmount" class="info-line">
+              <span class="label">İade Miktarı:</span>
+              <span class="value">{{ order.refundAmount | currency:'₺' }}</span>
+            </div>
+            <div *ngIf="order.refundId" class="info-line">
+              <span class="label">İade Referans No:</span>
+              <span class="value">{{ order.refundId }}</span>
+            </div>
+            <div *ngIf="order.cancelledAt" class="info-line">
+              <span class="label">İptal Tarihi:</span>
+              <span class="value">{{ formatDate(order.cancelledAt) }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div> 

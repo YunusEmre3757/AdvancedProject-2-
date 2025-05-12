@@ -1,0 +1,438 @@
+<!-- Admin Users Management -->
+<div class="admin-container">
+  <!-- Sidebar - Now Fixed -->
+  <div class="admin-sidebar">
+    <div class="admin-logo">
+      <h2>Admin Panel</h2>
+    </div>
+    <div class="admin-nav">
+      <div class="admin-user-info">
+        <div class="admin-avatar">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="admin-user-details">
+          <h4>Admin</h4>
+          <span>Yönetici</span>
+        </div>
+      </div>
+      <ul class="admin-menu">
+        <li>
+          <a routerLink="/admin/dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/products">
+            <i class="fas fa-box"></i>
+            <span>Ürünler</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/orders">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Siparişler</span>
+          </a>
+        </li>
+        <li class="active">
+          <a routerLink="/admin/users">
+            <i class="fas fa-users"></i>
+            <span>Kullanıcılar</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pending-users">
+            <i class="fas fa-user-clock"></i>
+            <span>Bekleyen Kullanıcılar</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/stores">
+            <i class="fas fa-store"></i>
+            <span>Mağazalar</span>
+          </a>
+        </li>
+      </ul>
+      <div class="admin-logout">
+        <a href="#" (click)="logout($event)">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Çıkış</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <div class="admin-header">
+      <h1>Kullanıcı Yönetimi</h1>
+      <div class="admin-actions">
+        <div class="admin-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Kullanıcı ara..." 
+                 [(ngModel)]="searchQuery" 
+                 (keyup.enter)="searchUsers()">
+        </div>
+        <button class="btn-primary" (click)="searchUsers()">
+          <i class="fas fa-search"></i> Ara
+        </button>
+        <a routerLink="/admin/pending-users" class="btn btn-warning">
+          <i class="fas fa-user-clock"></i> Bekleyen Kullanıcılar</a>
+      </div>
+    </div>
+    
+    <div class="admin-content">
+      <!-- Error Alert -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+      </div>
+      
+      <!-- Status Update Message -->
+      <div *ngIf="statusUpdateMessage" class="alert" [ngClass]="statusUpdateSuccess ? 'alert-success' : 'alert-danger'">
+        <i [class]="statusUpdateSuccess ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+        {{ statusUpdateMessage }}
+      </div>
+      
+      <!-- Admin Role Form -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3>Admin Yetkisi Ver</h3>
+        </div>
+        <div class="card-body">
+          <div class="admin-form">
+            <div class="form-group">
+              <label for="emailToPromote">E-posta Adresi</label>
+              <input type="email" id="emailToPromote" 
+                     class="form-control" 
+                     placeholder="admin@example.com" 
+                     [(ngModel)]="emailToPromote">
+            </div>
+            <button [disabled]="isProcessing || !emailToPromote" 
+                    class="btn-primary" 
+                    (click)="makeAdmin()">
+              <i *ngIf="isProcessing" class="fas fa-spinner fa-spin"></i>
+              <i *ngIf="!isProcessing" class="fas fa-user-shield"></i>
+              Admin Yap
+            </button>
+          </div>
+          <div *ngIf="resultMessage" class="mt-3" [ngClass]="isSuccess ? 'alert alert-success' : 'alert alert-danger'">
+            <i [class]="isSuccess ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+            {{ resultMessage }}
+          </div>
+        </div>
+      </div>
+      
+      
+      
+      <!-- Users Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Kullanıcı Listesi</h3>
+          <span class="badge bg-primary">{{ totalUsers }} kullanıcı</span>
+        </div>
+        <div class="card-body">
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ad Soyad</th>
+                  <th>E-posta</th>
+                  <th>Durum</th>
+                  <th>Kayıt Tarihi</th>
+                  <th>Roller</th>
+                  <th>İşlemler</th>
+                </tr>
+              </thead>
+              <tbody *ngIf="!loading">
+                <tr *ngFor="let user of users; let i = index" class="fade-in">
+                  <td data-label="#">{{ i + 1 + (page * size) }}</td>
+                  <td data-label="Ad Soyad">
+                    <div class="user-info">
+                      <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                      </div>
+                      <div>{{ user.name || '' }} {{ user.surname || '' }}</div>
+                    </div>
+                  </td>
+                  <td data-label="E-posta">{{ user.email || '' }}</td>
+                  <td data-label="Durum">
+                    <span class="status-pill" [ngClass]="{'active': user.isActive === true, 'inactive': user.isActive === false}">
+                      {{ user.isActive ? 'Aktif' : 'Pasif' }}
+                    </span>
+                    <span *ngIf="user.emailVerified === false" 
+                          class="status-pill warning" 
+                          title="E-posta doğrulanmamış">
+                      <i class="fas fa-envelope"></i> Doğrulanmamış
+                    </span>
+                  </td>
+                  <td data-label="Kayıt Tarihi">
+                    <span>{{ user.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+                  </td>
+                  <td data-label="Roller">
+                    <div class="roles-container">
+                      <span *ngFor="let role of user.roles" 
+                            class="role-badge" 
+                            [ngClass]="{'admin': role === 'ADMIN', 'seller': role === 'SELLER'}">
+                        {{ role }}
+                      </span>
+                    </div>
+                  </td>
+                  <td data-label="İşlemler">
+                    <div class="action-buttons">
+                      <!-- Admin rolü yoksa ekle, varsa kaldır -->
+                      <button *ngIf="user.roles && !user.roles.includes('ADMIN')" 
+                              class="btn-sm btn-success"
+                              (click)="addAdminRole(user.email)"
+                              title="Admin yetkisi ver">
+                        <i class="fas fa-user-shield"></i>
+                      </button>
+                      <button *ngIf="user.roles && user.roles.includes('ADMIN')" 
+                              class="btn-sm btn-warning"
+                              (click)="removeAdminRole(user.email)"
+                              title="Admin yetkisini kaldır">
+                        <i class="fas fa-user-minus"></i>
+                      </button>
+                      
+                      <!-- Seller rolü yoksa ekle, varsa kaldır -->
+                      <button *ngIf="user.roles && !user.roles.includes('SELLER')" 
+                              class="btn-sm btn-info"
+                              (click)="addSellerRole(user.email)"
+                              title="Satıcı yetkisi ver">
+                        <i class="fas fa-store"></i>
+                      </button>
+                      <button *ngIf="user.roles && user.roles.includes('SELLER')" 
+                              class="btn-sm btn-secondary"
+                              (click)="removeSellerRole(user.email)"
+                              title="Satıcı yetkisini kaldır">
+                        <i class="fas fa-store-slash"></i>
+                      </button>
+                      
+                      <button class="btn-sm btn-info" 
+                              title="Kullanıcı detayları"
+                              (click)="viewUserDetails(user.id)">
+                        <i class="fas fa-info-circle"></i>
+                      </button>
+                      <button class="btn-sm" 
+                              [ngClass]="user.isActive === true ? 'btn-danger' : 'btn-success'"
+                              [title]="user.isActive ? 'Kullanıcıyı devre dışı bırak' : 'Kullanıcıyı aktifleştir'"
+                              (click)="toggleUserStatus(user.email, user.isActive)">
+                        <i [class]="user.isActive === true ? 'fas fa-ban' : 'fas fa-check'"></i>
+                      </button>
+                      <button class="btn-sm btn-danger" 
+                              title="Kullanıcıyı sil"
+                              (click)="deleteUser(user.id)">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody *ngIf="loading">
+                <tr>
+                  <td colspan="7" class="text-center py-4">
+                    <div class="loading-spinner">
+                      <i class="fas fa-spinner fa-spin"></i>
+                      <span>Yükleniyor...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody *ngIf="!loading && (!users || users.length === 0)">
+                <tr>
+                  <td colspan="7" class="text-center py-4">
+                    <div class="empty-state">
+                      <i class="fas fa-users-slash"></i>
+                      <p>Kullanıcı bulunamadı</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div *ngIf="totalUsers > 0" class="pagination-container">
+            <div class="pagination-info">
+              Toplam {{ totalUsers }} kullanıcıdan {{ page * size + 1 }}-{{ page * size + users.length }} arası gösteriliyor
+            </div>
+            <ul class="pagination">
+              <li class="page-item" [ngClass]="{ 'disabled': page === 0 }">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page - 1)">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
+              <li class="page-item" *ngFor="let p of getPageNumbers()" [ngClass]="{ 'active': p === page }">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(p)">{{ p + 1 }}</a>
+              </li>
+              <li class="page-item" [ngClass]="{ 'disabled': page >= (totalUsers / size) - 1 }">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page + 1)">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Kullanıcı Detayları Modal -->
+<div class="modal-backdrop" *ngIf="showUserDetailsModal" (click)="closeUserDetailsModal()"></div>
+<div class="modal-container" *ngIf="showUserDetailsModal">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h4>Kullanıcı Detayları</h4>
+      <button class="modal-close" (click)="closeUserDetailsModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="userDetailsLoading" class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Detaylar yükleniyor...</span>
+      </div>
+      
+      <div *ngIf="!userDetailsLoading && selectedUser" class="user-details">
+        <div class="user-detail-header">
+          <div class="user-avatar-large">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="user-basic-info">
+            <h3>{{ selectedUser.name || '' }} {{ selectedUser.surname || '' }}</h3>
+            <p class="user-email">{{ selectedUser.email }}</p>
+            <div class="user-status">
+              <span class="status-pill" [ngClass]="{'active': selectedUser.isActive === true, 'inactive': selectedUser.isActive === false}">
+                {{ selectedUser.isActive ? 'Aktif' : 'Pasif' }}
+              </span>
+              <span *ngIf="selectedUser.emailVerified === false" class="status-pill warning">
+                <i class="fas fa-envelope"></i> Doğrulanmamış E-posta
+              </span>
+              <span *ngFor="let role of selectedUser.roles" 
+                  class="role-badge" 
+                  [ngClass]="{'admin': role === 'ADMIN', 'seller': role === 'SELLER'}">
+                {{ role }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="user-detail-sections">
+          <div class="detail-section">
+            <h5>Kişisel Bilgiler</h5>
+            <div class="detail-row">
+              <div class="detail-label">Ad:</div>
+              <div class="detail-value">{{ selectedUser.name || '-' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Soyad:</div>
+              <div class="detail-value">{{ selectedUser.surname || '-' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">E-posta:</div>
+              <div class="detail-value">{{ selectedUser.email || '-' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Telefon:</div>
+              <div class="detail-value">{{ selectedUser.phoneNumber || '-' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Cinsiyet:</div>
+              <div class="detail-value">{{ selectedUser.gender || '-' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Doğum Tarihi:</div>
+              <div class="detail-value">{{ selectedUser.birthDate ? (selectedUser.birthDate | date:'dd.MM.yyyy') : '-' }}</div>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <h5>Hesap Bilgileri</h5>
+            <div class="detail-row">
+              <div class="detail-label">Kullanıcı ID:</div>
+              <div class="detail-value">{{ selectedUser.id }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Roller:</div>
+              <div class="detail-value">
+                <span *ngFor="let role of selectedUser.roles" 
+                      class="role-badge" 
+                      [ngClass]="{'admin': role === 'ADMIN', 'seller': role === 'SELLER'}">
+                  {{ role }}
+                </span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Durum:</div>
+              <div class="detail-value">
+                <span class="status-pill" [ngClass]="{'active': selectedUser.isActive === true, 'inactive': selectedUser.isActive === false}">
+                  {{ selectedUser.isActive ? 'Aktif' : 'Pasif' }}
+                </span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">E-posta Doğrulaması:</div>
+              <div class="detail-value">
+                <span class="status-pill" [ngClass]="selectedUser.emailVerified ? 'active' : 'warning'">
+                  {{ selectedUser.emailVerified ? 'Doğrulanmış' : 'Doğrulanmamış' }}
+                </span>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Kayıt Tarihi:</div>
+              <div class="detail-value">{{ selectedUser.createdAt | date:'dd.MM.yyyy HH:mm' }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Son Güncelleme:</div>
+              <div class="detail-value">{{ selectedUser.updatedAt | date:'dd.MM.yyyy HH:mm' }}</div>
+            </div>
+          </div>
+          
+          <div class="detail-section" *ngIf="selectedUser.addresses && selectedUser.addresses.length > 0">
+            <h5>Adres Bilgileri</h5>
+            <div class="address-list">
+              <div class="address-card" *ngFor="let address of selectedUser.addresses">
+                <div class="address-header">
+                  <span class="address-title">{{ address.title }}</span>
+                  <span class="default-badge" *ngIf="address.isDefault">Varsayılan</span>
+                </div>
+                <div class="address-content">
+                  <p>{{ address.firstName }} {{ address.lastName }}</p>
+                  <p>{{ address.address }}</p>
+                  <p>{{ address.district }}, {{ address.city }} {{ address.postalCode }}</p>
+                  <p>{{ address.phone }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="!userDetailsLoading && !selectedUser" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>Kullanıcı detayları yüklenemedi.</p>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <div class="modal-actions">
+        <button 
+          *ngIf="selectedUser" 
+          class="btn btn-danger"
+          (click)="toggleUserStatus(selectedUser.email, selectedUser.isActive); closeUserDetailsModal()">
+          <i [class]="selectedUser.isActive === true ? 'fas fa-ban' : 'fas fa-check'"></i>
+          {{ selectedUser.isActive ? 'Devre Dışı Bırak' : 'Aktifleştir' }}
+        </button>
+        <button 
+          *ngIf="selectedUser"
+          class="btn btn-danger"
+          (click)="deleteUser(selectedUser.id); closeUserDetailsModal()">
+          <i class="fas fa-trash"></i> Kullanıcıyı Sil
+        </button>
+        <button class="btn btn-primary" (click)="closeUserDetailsModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>

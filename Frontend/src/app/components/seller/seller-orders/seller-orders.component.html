@@ -1,0 +1,172 @@
+<div class="seller-orders-container">
+  <!-- Header with actions -->
+  <div class="header-panel">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="back-button" (click)="goToDashboard()">
+          <i class="fas fa-arrow-left"></i>
+          <span>Dashboard</span>
+        </button>
+        <h1>{{ storeTitle }}</h1>
+      </div>
+      <div class="header-right">
+        <button class="logout-button" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Çıkış</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Store selector & filters -->
+    <div class="controls-container">
+      <div *ngIf="stores.length > 0" class="store-selector">
+        <label for="store-filter">
+          <i class="fas fa-store"></i>
+          <span>Mağaza</span>
+        </label>
+        <select id="store-filter" (change)="filterOrdersByStore($any($event.target).value ? +$any($event.target).value : null)">
+          <option [value]="null">Tüm Mağazalar</option>
+          <option *ngFor="let store of stores" [value]="store.id">{{ store.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-container">
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'all'"
+          (click)="applyFilter('all')">
+          <i class="fas fa-list"></i>
+          <span>Tümü</span>
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'pending'"
+          (click)="applyFilter('pending')">
+          <i class="fas fa-clock"></i>
+          <span>Beklemede</span>
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'processing'"
+          (click)="applyFilter('processing')">
+          <i class="fas fa-cogs"></i>
+          <span>Hazırlanıyor</span>
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'shipping'"
+          (click)="applyFilter('shipping')">
+          <i class="fas fa-shipping-fast"></i>
+          <span>Kargoda</span>
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'delivered'"
+          (click)="applyFilter('delivered')">
+          <i class="fas fa-check-circle"></i>
+          <span>Tamamlandı</span>
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="currentFilter === 'cancelled'"
+          (click)="applyFilter('cancelled')">
+          <i class="fas fa-ban"></i>
+          <span>İptal</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Content Panel -->
+  <div class="content-panel">
+    <!-- Loading indicator -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Siparişler yükleniyor...</p>
+    </div>
+    
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="error-container">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <div class="error-content">
+        <h3>Bir hata oluştu</h3>
+        <p>{{ errorMessage }}</p>
+        <button (click)="loadOrders()" class="retry-button">
+          <i class="fas fa-sync-alt"></i>
+          <span>Yeniden Dene</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && !errorMessage && filteredOrders.length === 0" class="empty-container">
+      <div class="empty-icon">
+        <i class="fas fa-shopping-basket"></i>
+      </div>
+      <div class="empty-content">
+        <h3>Sipariş Bulunamadı</h3>
+        <p>{{ currentFilter === 'all' ? 'Henüz sipariş bulunmuyor.' : 'Bu durumdaki sipariş bulunmuyor.' }}</p>
+      </div>
+    </div>
+    
+    <!-- Orders list -->
+    <div *ngIf="!isLoading && !errorMessage && filteredOrders.length > 0" class="orders-table-container">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th class="order-id">Sipariş No</th>
+            <th class="order-date">Tarih</th>
+            <th class="order-customer">Müşteri</th>
+            <th class="order-amount">Tutar</th>
+            <th class="order-status">Durum</th>
+            <th class="order-actions">İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders">
+            <td class="order-id" data-label="Sipariş No">
+              <span class="order-number">#{{ order.id }}</span>
+            </td>
+            <td class="order-date" data-label="Tarih">
+              <span class="date">{{ order.formattedDate }}</span>
+            </td>
+            <td class="order-customer" data-label="Müşteri">
+              <div class="customer-info">
+                <p class="customer-name">{{ order.customerName || 'Belirtilmemiş' }}</p>
+                <p *ngIf="order.customerPhone && order.customerPhone !== 'Belirtilmemiş'" class="customer-phone">
+                  <i class="fas fa-phone-alt"></i> {{ order.customerPhone }}
+                </p>
+                <p *ngIf="order.userEmail || order.customerEmail" class="customer-email">
+                  <i class="fas fa-envelope"></i> {{ order.userEmail || order.customerEmail }}
+                </p>
+              </div>
+            </td>
+            <td class="order-amount" data-label="Tutar">
+              <span class="amount">{{ calculateStoreTotal(order) | currency:'₺' }}</span>
+            </td>
+            <td class="order-status" data-label="Durum">
+              <span class="status-badge" [ngClass]="getStatusClass(getOrderStoreStatus(order))">
+                <i class="fas {{ 
+                  getOrderStoreStatus(order) === 'PENDING' ? 'fa-clock' : 
+                  getOrderStoreStatus(order) === 'PROCESSING' ? 'fa-cogs' : 
+                  getOrderStoreStatus(order) === 'SHIPPING' ? 'fa-shipping-fast' : 
+                  getOrderStoreStatus(order) === 'DELIVERED' ? 'fa-check-circle' : 
+                  'fa-ban'
+                }}"></i>
+                <span>{{ getStatusText(getOrderStoreStatus(order)) }}</span>
+              </span>
+            </td>
+            <td class="order-actions" data-label="İşlemler">
+              <button (click)="navigateToOrderDetail(order)" class="detail-button">
+                <i class="fas fa-eye"></i>
+                <span>Detay</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

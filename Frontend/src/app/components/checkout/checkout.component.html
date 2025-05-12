@@ -1,0 +1,310 @@
+<div class="checkout-container">
+  <h1 class="page-title">Sipariş Özeti ve Ödeme</h1>
+  
+  <div class="checkout-content">
+    <!-- Sipariş özeti -->
+    <div class="order-summary">
+      <h2>Sepetiniz</h2>
+      
+      <div class="cart-items">
+        <div *ngFor="let item of cartItems" class="cart-item">
+          <div class="product-image">
+            <img [src]="item.product.image || item.product.imageUrl || 'assets/images/no-image.jpg'" [alt]="item.product.name">
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ item.product.name }}</h3>
+            <div class="product-price-qty">
+              <span class="product-price">{{ getFormattedPrice(item.product.discountedPrice || item.product.price) }}</span>
+              <span class="product-quantity">{{ item.quantity }} adet</span>
+            </div>
+          </div>
+          <div class="product-total">
+            {{ getFormattedPrice((item.product.discountedPrice || item.product.price) * item.quantity) }}
+          </div>
+        </div>
+      </div>
+      
+      <div class="cart-totals">
+        <div class="total-line">
+          <span>Ara Toplam</span>
+          <span>{{ getFormattedPrice(cartTotal) }}</span>
+        </div>
+        <div class="total-line">
+          <span>Kargo</span>
+          <span>Ücretsiz</span>
+        </div>
+        <div class="total-line grand-total">
+          <span>Genel Toplam</span>
+          <span>{{ getFormattedPrice(cartTotal) }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Ödeme formu -->
+    <div class="payment-section">
+      <h2>Teslimat ve Ödeme Bilgileri</h2>
+      
+      <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+        <!-- İletişim Bilgileri -->
+        <div class="form-section">
+          <h3>İletişim Bilgileri</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fullName">Ad Soyad</label>
+              <input 
+                type="text" 
+                id="fullName" 
+                formControlName="fullName" 
+                [ngClass]="{'invalid': f['fullName'].touched && f['fullName'].invalid}"
+              >
+              <div *ngIf="f['fullName'].touched && f['fullName'].invalid" class="error-message">
+                Ad Soyad gereklidir
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">E-posta</label>
+              <input 
+                type="email" 
+                id="email" 
+                formControlName="email" 
+                [ngClass]="{'invalid': f['email'].touched && f['email'].invalid}"
+              >
+              <div *ngIf="f['email'].touched && f['email'].errors?.['required']" class="error-message">
+                E-posta gereklidir
+              </div>
+              <div *ngIf="f['email'].touched && f['email'].errors?.['email']" class="error-message">
+                Geçerli bir e-posta giriniz
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="phone">Telefon</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                formControlName="phone" 
+                placeholder="5XXXXXXXXX" 
+                [ngClass]="{'invalid': f['phone'].touched && f['phone'].invalid}"
+              >
+              <div *ngIf="f['phone'].touched && f['phone'].errors?.['required']" class="error-message">
+                Telefon gereklidir
+              </div>
+              <div *ngIf="f['phone'].touched && f['phone'].errors?.['pattern']" class="error-message">
+                Geçerli bir telefon numarası giriniz (10 rakam)
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Teslimat Adresi -->
+        <div class="form-section">
+          <h3>Teslimat Adresi</h3>
+          
+          <!-- Kayıtlı adresler seçimi -->
+          <div class="user-addresses-section" *ngIf="userAddresses && userAddresses.length > 0">
+            <div class="address-toggle">
+              <div class="toggle-options">
+                <button type="button" class="toggle-btn" [class.active]="!showAddressForm" (click)="showAddressForm = false">
+                  <span class="toggle-icon"><i class="fas fa-bookmark"></i></span>
+                  Kayıtlı Adreslerim
+                </button>
+                <button type="button" class="toggle-btn" [class.active]="showAddressForm" (click)="toggleAddressForm()">
+                  <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                  Yeni Adres
+                </button>
+              </div>
+            </div>
+            
+            <!-- Kayıtlı adresler listesi -->
+            <div class="saved-addresses" *ngIf="!showAddressForm">
+              <div class="addresses-loading" *ngIf="loadingAddresses">
+                <div class="spinner"></div>
+                <p>Adresleriniz yükleniyor...</p>
+              </div>
+              
+              <div class="addresses-grid" *ngIf="!loadingAddresses">
+                <div class="address-card" *ngFor="let address of userAddresses" 
+                     [class.selected]="selectedAddress && selectedAddress.id === address.id"
+                     (click)="selectAddress(address)">
+                  <div class="address-card-header">
+                    <h4>{{ address.adresBasligi }}</h4>
+                    <span class="default-badge" *ngIf="address.varsayilanMi">Varsayılan</span>
+                  </div>
+                  <div class="address-card-content">
+                    <p>{{ address.detayAdres }}</p>
+                    <p>{{ address.mahalle.mahalleAdi }}, {{ address.ilce.ilceAdi }}, {{ address.il.ilAdi }}</p>
+                    <p class="phone-number">{{ address.telefon }}</p>
+                  </div>
+                  <div class="address-card-footer" *ngIf="selectedAddress && selectedAddress.id === address.id">
+                    <span class="selected-icon"><i class="fas fa-check-circle"></i> Seçildi</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Adres formu (yeni veya kayıtlı adresi yoksa) -->
+          <div class="address-form" *ngIf="showAddressForm || userAddresses.length === 0">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="addressTitle">Adres Başlığı</label>
+                <input 
+                  type="text" 
+                  id="addressTitle" 
+                  formControlName="addressTitle" 
+                  placeholder="Örn: Ev, İş"
+                  [ngClass]="{'invalid': f['addressTitle'].touched && f['addressTitle'].invalid}"
+                >
+                <div *ngIf="f['addressTitle'].touched && f['addressTitle'].invalid" class="error-message">
+                  Adres başlığı gereklidir
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="il">İl</label>
+                <select 
+                  id="il" 
+                  formControlName="il" 
+                  [ngClass]="{'invalid': f['il'].touched && f['il'].invalid}"
+                >
+                  <option value="">İl Seçiniz</option>
+                  <option *ngFor="let il of iller" [value]="il.ilId">{{ il.ilAdi }}</option>
+                </select>
+                <div *ngIf="f['il'].touched && f['il'].invalid" class="error-message">
+                  İl seçimi gereklidir
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="ilce">İlçe</label>
+                <select 
+                  id="ilce" 
+                  formControlName="ilce" 
+                  [ngClass]="{'invalid': f['ilce'].touched && f['ilce'].invalid}"
+                >
+                  <option value="">İlçe Seçiniz</option>
+                  <option *ngFor="let ilce of ilceler" [value]="ilce.ilceId">{{ ilce.ilceAdi }}</option>
+                </select>
+                <div *ngIf="f['ilce'].touched && f['ilce'].invalid" class="error-message">
+                  İlçe seçimi gereklidir
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="mahalle">Mahalle</label>
+                <select 
+                  id="mahalle" 
+                  formControlName="mahalle" 
+                  [ngClass]="{'invalid': f['mahalle'].touched && f['mahalle'].invalid}"
+                >
+                  <option value="">Mahalle Seçiniz</option>
+                  <option *ngFor="let mahalle of mahalleler" [value]="mahalle.mahalleId">{{ mahalle.mahalleAdi }}</option>
+                </select>
+                <div *ngIf="f['mahalle'].touched && f['mahalle'].invalid" class="error-message">
+                  Mahalle seçimi gereklidir
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="detayAdres">Detaylı Adres</label>
+              <textarea 
+                id="detayAdres" 
+                formControlName="detayAdres" 
+                rows="3" 
+                placeholder="Cadde, sokak, bina no, daire no gibi detaylı adres bilgilerini giriniz"
+                [ngClass]="{'invalid': f['detayAdres'].touched && f['detayAdres'].invalid}"
+              ></textarea>
+              <div *ngIf="f['detayAdres'].touched && f['detayAdres'].errors?.['required']" class="error-message">
+                Detaylı adres gereklidir
+              </div>
+              <div *ngIf="f['detayAdres'].touched && f['detayAdres'].errors?.['minlength']" class="error-message">
+                Detaylı adres en az 10 karakter olmalıdır
+              </div>
+            </div>
+            
+            <div class="address-actions">
+              <div class="form-check">
+                <input type="checkbox" id="saveAddress" formControlName="saveAddress">
+                <label for="saveAddress">Bu adresi kaydet</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Ödeme Bilgileri -->
+        <div class="form-section">
+          <h3>Ödeme Bilgileri</h3>
+          
+          <div class="form-group">
+            <label>Ödeme Yöntemi</label>
+            <div class="payment-method-options">
+              <div *ngFor="let method of paymentMethods" class="payment-method-option">
+                <input 
+                  type="radio" 
+                  [id]="method.id" 
+                  formControlName="paymentMethod" 
+                  [value]="method.id"
+                  (change)="onPaymentMethodChange(method.id)"
+                >
+                <label [for]="method.id">{{ method.name }}</label>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="checkoutForm.get('paymentMethod')?.value === 'credit_card' || checkoutForm.get('paymentMethod')?.value === 'debit_card'" class="card-details">
+            <div class="form-group">
+              <label for="cardName">Kart Üzerindeki İsim</label>
+              <input 
+                type="text" 
+                id="cardName" 
+                formControlName="fullName" 
+                [ngClass]="{'invalid': f['fullName'].touched && f['fullName'].invalid}"
+              >
+              <div *ngIf="f['fullName'].touched && f['fullName'].invalid" class="error-message">
+                Kart sahibinin adı gereklidir
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Kart Bilgileri</label>
+              <ngx-stripe-card
+                [options]="cardOptions"
+                [elementsOptions]="elementsOptions"
+              ></ngx-stripe-card>
+              <div class="card-errors" *ngIf="processing && card?.element">
+                Lütfen tüm kart bilgilerini eksiksiz girin
+              </div>
+              <div class="secure-payment-info">
+                <i class="fas fa-lock"></i> Tüm ödeme bilgileriniz güvenli bir şekilde şifrelenir ve saklanmaz.
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-back" routerLink="/cart">
+            <i class="fas fa-arrow-left"></i>
+            Sepete Geri Dön
+          </button>
+          <button 
+            type="submit" 
+            class="btn-submit" 
+            [disabled]="checkoutForm.invalid || processing"
+          >
+            <span *ngIf="!processing">Siparişi Tamamla</span>
+            <span *ngIf="processing" class="processing-text">
+              <div class="spinner"></div>
+              İşlem Yapılıyor...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

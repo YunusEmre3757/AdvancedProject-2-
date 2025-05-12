@@ -1,0 +1,130 @@
+/* Temel konteyner */
+.store-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 2rem;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 30%, rgba(240, 240, 240, 0.9) 100%), 
+                   url('/assets/images/store-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Login kartı */
+.store-login-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Başlık bölümü */
+.store-login-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.store-login-header h1 {
+  font-size: 2rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.store-login-header p {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+/* Form alanı */
+.store-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.form-options {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+}
+
+.login-button {
+  width: 100%;
+  height: 48px;
+  font-size: 1.05rem;
+  border-radius: 24px;
+}
+
+/* Hata mesajı */
+.error-message {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Başvuru yönlendirme */
+.application-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0;
+  margin-top: 1.5rem;
+  border-top: 1px solid #eee;
+  gap: 0.75rem;
+}
+
+.application-prompt span {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* Bilgi kutusu */
+.login-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  background-color: rgba(33, 150, 243, 0.05);
+  border-radius: 8px;
+}
+
+.login-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Duyarlı tasarım */
+@media (max-width: 768px) {
+  .store-login-card {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+  
+  .store-login-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .login-button {
+    height: 44px;
+  }
+} 

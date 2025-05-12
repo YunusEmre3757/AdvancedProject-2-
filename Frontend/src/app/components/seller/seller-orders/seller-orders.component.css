@@ -1,0 +1,597 @@
+/* Main Container */
+.seller-orders-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  color: #333;
+  background-color: #f9fafb;
+}
+
+/* Header Panel */
+.header-panel {
+  background-color: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #4f46e5;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.header-panel h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Back Button */
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f3f4f6;
+  color: #4f46e5;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #4f46e5;
+  color: white;
+  transform: translateX(-3px);
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.2);
+}
+
+.back-button i {
+  font-size: 0.875rem;
+}
+
+/* Logout Button */
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fee2e2;
+  color: #ef4444;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
+}
+
+/* Controls Container */
+.controls-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Store Selector */
+.store-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 250px;
+}
+
+.store-selector label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.store-selector select {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  font-size: 0.875rem;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  min-width: 200px;
+}
+
+.store-selector select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+/* Filter Container */
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.815rem;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.filter-btn i {
+  font-size: 0.875rem;
+}
+
+.filter-btn:hover {
+  background-color: #f3f4f6;
+  color: #4f46e5;
+  border-color: #d1d5db;
+}
+
+.filter-btn.active {
+  background-color: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+}
+
+/* Content Panel */
+.content-panel {
+  background-color: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(79, 70, 229, 0.2);
+  border-radius: 50%;
+  border-top-color: #4f46e5;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-container p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Error Container */
+.error-container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: #fef2f2;
+  border-radius: 10px;
+  border-left: 4px solid #ef4444;
+}
+
+.error-icon {
+  font-size: 2rem;
+  color: #ef4444;
+}
+
+.error-content {
+  flex: 1;
+}
+
+.error-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #b91c1c;
+}
+
+.error-content p {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #7f1d1d;
+}
+
+.retry-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background-color: white;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  font-size: 0.815rem;
+  font-weight: 500;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+/* Empty Container */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 1rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.empty-content h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.empty-content p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  max-width: 400px;
+}
+
+/* Orders Table */
+.orders-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.orders-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: 0.05em;
+}
+
+.orders-table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.orders-table th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.orders-table td {
+  padding: 1rem 1.5rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+}
+
+.orders-table tr:last-child td {
+  border-bottom: none;
+}
+
+.orders-table tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.orders-table tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+.orders-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.orders-table tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* Table Cell Styling */
+.order-id {
+  white-space: nowrap;
+  width: 10%;
+}
+
+.order-date {
+  white-space: nowrap;
+  width: 15%;
+}
+
+.order-customer {
+  width: 30%;
+}
+
+.order-amount {
+  white-space: nowrap;
+  width: 15%;
+  text-align: right;
+}
+
+.order-status {
+  width: 15%;
+}
+
+.order-actions {
+  width: 15%;
+  text-align: center;
+}
+
+/* Order Number */
+.order-number {
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+/* Date */
+.date {
+  color: #6b7280;
+}
+
+/* Amount */
+.amount {
+  font-weight: 600;
+  color: #047857;
+}
+
+/* Customer Info */
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.customer-name {
+  margin: 0;
+  font-weight: 600;
+  color: #111827;
+}
+
+.customer-phone, .customer-email {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-processing {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-shipped {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.status-delivered {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Detail Button */
+.detail-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.detail-button:hover {
+  background-color: #4f46e5;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .controls-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .store-selector, .filter-container {
+    width: 100%;
+  }
+  
+  .filter-container {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .seller-orders-container {
+    padding: 1rem;
+  }
+  
+  .header-panel, .content-panel {
+    padding: 1rem;
+  }
+  
+  .filter-btn span {
+    display: none;
+  }
+  
+  .filter-btn {
+    padding: 0.625rem;
+  }
+  
+  .filter-btn i {
+    font-size: 1rem;
+  }
+  
+  .orders-table th, .orders-table td {
+    padding: 0.75rem;
+  }
+  
+  .customer-phone, .customer-email {
+    display: none;
+  }
+  
+  .detail-button span {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .orders-table {
+    display: block;
+  }
+  
+  .orders-table thead {
+    display: none;
+  }
+  
+  .orders-table tbody, .orders-table tr, .orders-table td {
+    display: block;
+    width: 100%;
+  }
+  
+  .orders-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .orders-table td {
+    text-align: right;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed #e5e7eb;
+    position: relative;
+    padding-left: 50%;
+  }
+  
+  .orders-table td:last-child {
+    border-bottom: none;
+    text-align: center;
+  }
+  
+  .orders-table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 600;
+  }
+}

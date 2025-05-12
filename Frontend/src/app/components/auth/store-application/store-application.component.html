@@ -1,0 +1,176 @@
+<div class="store-application-container">
+  <div class="application-card">
+    <div class="card-header">
+      <h1>Marketini Yarat</h1>
+      <p>Kendi mağazanızı oluşturmak için aşağıdaki formu doldurun.</p>
+    </div>
+    
+    <div class="card-content">
+      <!-- Giriş yapmamış kullanıcılar için -->
+      <div class="login-required" *ngIf="!isLoggedIn">
+        <div class="login-message">
+          <i class="fas fa-lock"></i>
+          <h2>Devam etmek için giriş yapın</h2>
+          <p>Market başvurusunda bulunmak için lütfen hesabınıza giriş yapın veya yeni bir hesap oluşturun.</p>
+          <div class="login-actions">
+            <button (click)="redirectToLogin()" class="login-button">Giriş Yap</button>
+            <a routerLink="/auth/register" class="register-link">Hesap Oluştur</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Giriş yapmış kullanıcılar için form -->
+      <form *ngIf="isLoggedIn" [formGroup]="storeApplicationForm" (ngSubmit)="submitStoreApplication()">
+        <!-- Hata mesajı alanı -->
+        <div class="error-block" *ngIf="errorMessage">
+          <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="storeName">Market Adı <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="storeName" 
+            formControlName="storeName" 
+            placeholder="Mağazanızın adını girin"
+          >
+          <div class="validation-error" *ngIf="storeApplicationForm.get('storeName')?.invalid && storeApplicationForm.get('storeName')?.touched">
+            <span *ngIf="storeApplicationForm.get('storeName')?.errors?.['required']">Market adı gereklidir</span>
+            <span *ngIf="storeApplicationForm.get('storeName')?.errors?.['minlength']">Market adı en az 3 karakter olmalıdır</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="storeDescription">Market Açıklaması <span class="required">*</span></label>
+          <textarea 
+            id="storeDescription" 
+            formControlName="storeDescription" 
+            placeholder="Mağazanızı kısaca tanıtın"
+            rows="4"
+          ></textarea>
+          <div class="validation-error" *ngIf="storeApplicationForm.get('storeDescription')?.invalid && storeApplicationForm.get('storeDescription')?.touched">
+            <span *ngIf="storeApplicationForm.get('storeDescription')?.errors?.['required']">Market açıklaması gereklidir</span>
+            <span *ngIf="storeApplicationForm.get('storeDescription')?.errors?.['minlength']">Market açıklaması en az 20 karakter olmalıdır</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="category">Market Ana Kategorisi <span class="required">*</span></label>
+          <select id="category" formControlName="category">
+            <option value="">Ana Kategori Seçin</option>
+            <option *ngFor="let category of mainCategories" [value]="category.id">{{ category.name }}</option>
+          </select>
+          <div class="hint">
+            <small>Marketinizin hangi ana kategoride yer alacağını seçin. Bu, marketinizi sınıflandırmak için kullanılacaktır.</small>
+          </div>
+          <div class="validation-error" *ngIf="storeApplicationForm.get('category')?.invalid && storeApplicationForm.get('category')?.touched">
+            <span *ngIf="storeApplicationForm.get('category')?.errors?.['required']">Ana kategori seçimi gereklidir</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Telefon Numarası <span class="required">*</span></label>
+          <input 
+            type="tel" 
+            id="phone" 
+            formControlName="phone" 
+            placeholder="Örn: 05xxxxxxxxx"
+          >
+          <div class="validation-error" *ngIf="storeApplicationForm.get('phone')?.invalid && storeApplicationForm.get('phone')?.touched">
+            <span *ngIf="storeApplicationForm.get('phone')?.errors?.['required']">Telefon numarası gereklidir</span>
+            <span *ngIf="storeApplicationForm.get('phone')?.errors?.['pattern']">Geçerli bir telefon numarası giriniz (Örn: 05xxxxxxxxx)</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">E-posta Adresi <span class="required">*</span></label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            placeholder="E-posta adresinizi girin"
+          >
+          <div class="validation-error" *ngIf="storeApplicationForm.get('email')?.invalid && storeApplicationForm.get('email')?.touched">
+            <span *ngIf="storeApplicationForm.get('email')?.errors?.['required']">E-posta adresi gereklidir</span>
+            <span *ngIf="storeApplicationForm.get('email')?.errors?.['email']">Geçerli bir e-posta adresi giriniz</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="taxNumber">Vergi Numarası <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="taxNumber" 
+            formControlName="taxNumber" 
+            placeholder="Vergi numaranızı girin"
+          >
+          <div class="validation-error" *ngIf="storeApplicationForm.get('taxNumber')?.invalid && storeApplicationForm.get('taxNumber')?.touched">
+            <span *ngIf="storeApplicationForm.get('taxNumber')?.errors?.['required']">Vergi numarası gereklidir</span>
+            <span *ngIf="storeApplicationForm.get('taxNumber')?.errors?.['pattern']">Geçerli bir vergi numarası giriniz (10-11 rakam)</span>
+          </div>
+        </div>
+        
+        <div class="form-group terms-group">
+          <div class="checkbox-wrapper">
+            <input 
+              type="checkbox" 
+              id="termsAccepted" 
+              formControlName="termsAccepted"
+            >
+            <label for="termsAccepted">
+              <a routerLink="/terms" target="_blank">Kullanım şartlarını</a> okudum ve kabul ediyorum
+            </label>
+          </div>
+          <div class="validation-error" *ngIf="storeApplicationForm.get('termsAccepted')?.invalid && storeApplicationForm.get('termsAccepted')?.touched">
+            <span *ngIf="storeApplicationForm.get('termsAccepted')?.errors?.['required']">Devam etmek için kullanım şartlarını kabul etmelisiniz</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            [disabled]="storeApplicationForm.invalid || isSubmitting" 
+            class="submit-button"
+          >
+            <span *ngIf="!isSubmitting">Başvuru Gönder</span>
+            <span *ngIf="isSubmitting">
+              <i class="fas fa-spinner fa-spin"></i> Gönderiliyor...
+            </span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Store Application bileşeninde, mağaza girişine yönlendiren bir link ekleyeceğim -->
+      <!-- Bu linki form altında veya zaten varsa uygun bir konuma ekleyeceğim -->
+
+      <!-- Şunu arıyorum: Eğer kullanıcı zaten mağaza sahibiyse giriş yap butonu -->
+      <div class="store-login-link">
+        <p>Zaten onaylanmış bir mağazanız var mı?</p>
+        <a routerLink="/auth/store-login" class="login-link">
+          <mat-icon>store</mat-icon>
+          Mağaza Girişi Yap
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" *ngIf="isSuccessModalOpen" (click)="closeSuccessModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Başvurunuz Alındı</h2>
+      <button type="button" class="close-button" (click)="closeSuccessModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <p>Market başvurunuz başarıyla alınmıştır. Başvurunuz incelendikten sonra size e-posta ile bilgi verilecektir.</p>
+      <button type="button" class="primary-button" (click)="closeSuccessModal()">Tamam</button>
+    </div>
+  </div>
+</div> 

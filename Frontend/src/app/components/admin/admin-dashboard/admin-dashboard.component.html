@@ -1,0 +1,228 @@
+<!-- Modern Admin Dashboard -->
+<div class="admin-container">
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <div class="admin-logo">
+      <h2>Admin Panel</h2>
+    </div>
+    <div class="admin-nav">
+      <div class="admin-user-info">
+        <div class="admin-avatar">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="admin-user-details">
+          <h4>Admin</h4>
+          <span>Yönetici</span>
+        </div>
+      </div>
+      <ul class="admin-menu">
+        <li [class.active]="isActive('dashboard')">
+          <a routerLink="/admin/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li [class.active]="isActive('products')">
+          <a routerLink="/admin/products" routerLinkActive="active">
+            <i class="fas fa-box"></i>
+            <span>Ürünler</span>
+          </a>
+        </li>
+        <li [class.active]="isActive('orders')">
+          <a routerLink="/admin/orders" routerLinkActive="active">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Siparişler</span>
+          </a>
+        </li>
+        <li [class.active]="isActive('users')">
+          <a routerLink="/admin/users" routerLinkActive="active">
+            <i class="fas fa-users"></i>
+            <span>Kullanıcılar</span>
+          </a>
+        </li>
+
+        <li>
+          <a routerLink="/admin/pending-users">
+            <i class="fas fa-user-clock"></i>
+            <span>Bekleyen Kullanıcılar</span>
+          </a>
+        </li>
+        
+        <li [class.active]="isActive('stores')">
+          <a routerLink="/admin/stores" routerLinkActive="active">
+            <i class="fas fa-store"></i>
+            <span>Mağazalar</span>
+          </a>
+        </li>
+        
+      
+      </ul>
+      <div class="admin-logout">
+        <a href="#" (click)="logout($event)">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Çıkış</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <div class="admin-header">
+      <h2 class="page-title">Dashboard</h2>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="admin-content" *ngIf="shouldShowDashboard()">
+      <p class="welcome-message">Hoş geldiniz, Admin! İşte bugünkü sistem durumu:</p>
+
+      <!-- Stats Cards -->
+      <div class="stats-row">
+        <div class="stat-card primary">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-details">
+            <h3>{{stats.totalUsers}}</h3>
+            <p>Toplam Kullanıcı</p>
+          </div>
+        </div>
+        
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="stat-details">
+            <h3>{{stats.orders}}</h3>
+            <p>Toplam Sipariş</p>
+          </div>
+        </div>
+        
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <i class="fas fa-store"></i>
+          </div>
+          <div class="stat-details">
+            <h3>{{stats.stores}}</h3>
+            <p>Toplam Mağaza</p>
+          </div>
+        </div>
+        
+        <div class="stat-card danger">
+          <div class="stat-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="stat-details">
+            <h3>{{stats.products}}</h3>
+            <p>Toplam Ürün</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Chart -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>Haftalık Gelir</h3>
+          <div class="chart-options">
+            <select>
+              <option>Bu Hafta</option>
+              <option>Geçen Hafta</option>
+              <option>Bu Ay</option>
+              <option>Geçen Ay</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-body">
+          <!-- Chart will be rendered here -->
+          <div class="chart-placeholder">
+            <div class="chart-bar" style="height: 60%"></div>
+            <div class="chart-bar" style="height: 80%"></div>
+            <div class="chart-bar" style="height: 40%"></div>
+            <div class="chart-bar" style="height: 70%"></div>
+            <div class="chart-bar" style="height: 90%"></div>
+            <div class="chart-bar" style="height: 55%"></div>
+            <div class="chart-bar" style="height: 75%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions and Latest Activities -->
+      <div class="action-activity-container">
+        <div class="quick-actions">
+          <h3>Hızlı İşlemler</h3>
+          <div class="action-buttons">
+            <button class="action-button" routerLink="/admin/products">
+              <i class="fas fa-plus-circle"></i>
+              <span>Ürün Ekle</span>
+            </button>
+            <button class="action-button" routerLink="/admin/users">
+              <i class="fas fa-user-plus"></i>
+              <span>Kullanıcı Ekle</span>
+            </button>
+            <button class="action-button" routerLink="/admin/stores">
+              <i class="fas fa-store-alt"></i>
+              <span>Mağaza Onayla</span>
+            </button>
+            <button class="action-button" routerLink="/admin/orders">
+              <i class="fas fa-clipboard-check"></i>
+              <span>Sipariş Kontrol</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="latest-activities">
+          <h3>Son Aktiviteler</h3>
+          <ul class="activity-list">
+            <li *ngFor="let activity of recentActivities">
+              <div class="activity-icon" [ngClass]="activity.type">
+                <i [class]="activity.icon"></i>
+              </div>
+              <div class="activity-details">
+                <p>{{activity.message}}</p>
+                <span class="activity-time">{{activity.time}}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Recent Store Applications -->
+      <div class="store-applications">
+        <div class="section-header">
+          <h3>Bekleyen Mağaza Başvuruları</h3>
+          <a routerLink="/admin/stores" class="view-all">Hepsini Gör</a>
+        </div>
+        <div class="application-list">
+          <!-- Sadece bekleyen başvuruları göster -->
+          <ng-container *ngIf="hasPendingStoreApplications(); else noPendingApplications">
+            <div class="application-item" *ngFor="let application of getPendingStoreApplications()">
+              <div class="application-info">
+                <img [src]="application.logo || 'assets/img/store-default.png'" alt="Store Logo">
+                <div class="application-details">
+                  <h4>{{application.name}}</h4>
+                  <p>{{application.owner}}</p>
+                  <small class="status-text">Durum: {{application.status}}</small>
+                </div>
+              </div>
+              <div class="application-actions">
+                <button class="btn-approve" (click)="approveStoreApplication(application.id)">Onayla</button>
+                <button class="btn-reject" (click)="rejectStoreApplication(application.id)">Reddet</button>
+              </div>
+            </div>
+          </ng-container>
+          
+          <!-- Bekleyen başvuru yoksa -->
+          <ng-template #noPendingApplications>
+            <div class="empty-applications">
+              <i class="fas fa-info-circle"></i>
+              <p>Bekleyen mağaza başvurusu bulunmamaktadır.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Router outlet for nested routes (other admin pages) -->
+    <router-outlet *ngIf="!shouldShowDashboard()"></router-outlet>
+  </div>
+</div>

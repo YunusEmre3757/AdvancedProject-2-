@@ -1,0 +1,90 @@
+<div class="address-form-container">
+  <form [formGroup]="addressForm" (ngSubmit)="onSubmit()" class="address-form">
+    <div class="form-header">
+      <h2>Yeni Adres Ekle</h2>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Adres Başlığı</mat-label>
+        <input matInput formControlName="adresBasligi" placeholder="Örn: Ev, İş">
+        <mat-error *ngIf="addressForm.get('adresBasligi')?.hasError('required')">
+          Adres başlığı gereklidir
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Telefon</mat-label>
+        <input matInput formControlName="telefon" placeholder="5XX XXX XX XX">
+        <mat-error *ngIf="addressForm.get('telefon')?.hasError('required')">
+          Telefon numarası gereklidir
+        </mat-error>
+        <mat-error *ngIf="addressForm.get('telefon')?.hasError('pattern')">
+          Geçerli bir telefon numarası giriniz
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>İl</mat-label>
+        <mat-select formControlName="il">
+          <mat-option *ngFor="let il of iller" [value]="il.ilId">
+            {{il.ilAdi}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addressForm.get('il')?.hasError('required')">
+          İl seçimi gereklidir
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>İlçe</mat-label>
+        <mat-select formControlName="ilce">
+          <mat-option *ngFor="let ilce of ilceler" [value]="ilce.ilceId">
+            {{ ilce.ilceAdi }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addressForm.get('ilce')?.hasError('required')">
+          İlçe seçimi zorunludur
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Mahalle</mat-label>
+        <mat-select formControlName="mahalle">
+          <mat-option *ngFor="let mahalle of mahalleler" [value]="mahalle.mahalleId">
+            {{ mahalle.mahalleAdi }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addressForm.get('mahalle')?.hasError('required')">
+          Mahalle seçimi zorunludur
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Detaylı Adres</mat-label>
+        <textarea matInput formControlName="detayAdres" rows="4" 
+                  placeholder="Cadde, sokak, bina no, daire no gibi detaylı adres bilgilerini giriniz"></textarea>
+        <mat-error *ngIf="addressForm.get('detayAdres')?.hasError('required')">
+          Detaylı adres gereklidir
+        </mat-error>
+        <mat-error *ngIf="addressForm.get('detayAdres')?.hasError('minlength')">
+          Detaylı adres en az 10 karakter olmalıdır
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" 
+              [disabled]="!addressForm.valid || isLoading">
+        <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+        <span *ngIf="!isLoading">Adresi Kaydet</span>
+      </button>
+    </div>
+  </form>
+</div> 

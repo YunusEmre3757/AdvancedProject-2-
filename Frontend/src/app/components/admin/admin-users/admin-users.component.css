@@ -1,0 +1,1181 @@
+/* Admin Users Ana Stiller */
+:host {
+  --primary-color: #3f4755;
+  --primary-hover: #2d3440;
+  --primary-dark: #1a1e25;
+  --success-color: #2dce89;
+  --success-hover: #26b977;
+  --warning-color: #f6ad55;
+  --warning-hover: #e09743;
+  --danger-color: #e53e3e;
+  --danger-hover: #c53030;
+  --info-color: #63b3ed;
+  --info-hover: #4299e1;
+  --gray-50: #f9fafb;
+  --gray-100: #f7fafc;
+  --gray-200: #edf2f7;
+  --gray-300: #e2e8f0;
+  --gray-400: #cbd5e0;
+  --gray-500: #a0aec0;
+  --gray-600: #718096;
+  --gray-700: #4a5568;
+  --gray-800: #2d3748;
+  --gray-900: #1a202c;
+  --box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Ana Konteyner */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--gray-100);
+  font-family: var(--font-family);
+}
+
+/* Sidebar Stilleri */
+.admin-sidebar {
+  width: 260px;
+  background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-900) 100%);
+  color: white;
+  position: fixed;
+  height: 100vh;
+  z-index: 10;
+  overflow-y: auto;
+  transition: var(--transition);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.admin-logo {
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-logo h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.admin-nav {
+  margin: 0.5rem 0;
+}
+
+.admin-user-info {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.5rem;
+}
+
+.admin-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(5px);
+}
+
+.admin-avatar i {
+  font-size: 1.4rem;
+  color: white;
+}
+
+.admin-user-details h4 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.admin-user-details span {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  color: var(--gray-300);
+}
+
+.admin-menu {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.admin-menu li {
+  position: relative;
+  margin: 4px 16px;
+}
+
+.admin-menu li a {
+  display: flex;
+  align-items: center;
+  padding: 0.9rem 1.5rem;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: var(--transition);
+  border-radius: 12px;
+}
+
+.admin-menu li a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateX(5px);
+}
+
+.admin-menu li.active a {
+  background-color: var(--gray-700);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.admin-menu li i {
+  margin-right: 14px;
+  width: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Çıkış Butonu Stilleri */
+.admin-logout {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 1rem 1rem 2rem;
+}
+
+.admin-logout a {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  padding: 0.9rem 1.5rem;
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.admin-logout a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateX(5px);
+}
+
+.admin-logout i {
+  margin-right: 14px;
+  font-size: 1.1rem;
+}
+
+/* Ana İçerik Alanı */
+.admin-main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 2rem;
+  transition: var(--transition);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.admin-header h1 {
+  color: var(--gray-800);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.admin-search {
+  position: relative;
+}
+
+.admin-search i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-500);
+  font-size: 14px;
+}
+
+.admin-search input {
+  padding: 12px 16px 12px 42px;
+  border: 1px solid var(--gray-300);
+  border-radius: 10px;
+  font-size: 14px;
+  min-width: 240px;
+  background-color: white;
+  transition: var(--transition);
+}
+
+.admin-search input:focus {
+  outline: none;
+  border-color: var(--gray-500);
+  box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+}
+
+/* Button Styles */
+.btn-primary, .btn, .btn-warning, .btn-info, .btn-success, .btn-danger {
+  background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
+  color: white;
+  border: none;
+  padding: 11px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+
+.btn-primary:hover, .btn:hover {
+  background: linear-gradient(135deg, var(--gray-800), var(--gray-900));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--warning-color), var(--warning-hover));
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, var(--warning-hover), var(--warning-color));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
+}
+
+.btn-info {
+  background: linear-gradient(135deg, var(--info-color), var(--info-hover));
+}
+
+.btn-info:hover {
+  background: linear-gradient(135deg, var(--info-hover), var(--info-color));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success-color), var(--success-hover));
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, var(--success-hover), var(--success-color));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--danger-color), var(--danger-hover));
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, var(--danger-hover), var(--danger-color));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
+}
+
+.btn-primary i, .btn i, .btn-warning i, .btn-info i, .btn-success i, .btn-danger i {
+  margin-right: 8px;
+}
+
+/* Admin Form */
+.admin-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 250px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 14px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--gray-300);
+  border-radius: 10px;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--gray-500);
+  box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+/* Admin İçerik Alanı */
+.admin-content {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Kart Stilleri */
+.card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 30px;
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.card-body {
+  padding: 1.75rem;
+}
+
+/* Uyarı Stilleri */
+.alert {
+  position: relative;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.alert i {
+  margin-right: 1rem;
+  font-size: 1.25rem;
+}
+
+.alert p {
+  margin: 0;
+}
+
+.alert-info {
+  background-color: rgba(99, 179, 237, 0.1);
+  border-left: 4px solid var(--info-color);
+  color: var(--info-hover);
+}
+
+.alert-success {
+  background-color: rgba(45, 206, 137, 0.1);
+  border-left: 4px solid var(--success-color);
+  color: var(--success-hover);
+}
+
+.alert-danger {
+  background-color: rgba(229, 62, 62, 0.1);
+  border-left: 4px solid var(--danger-color);
+  color: var(--danger-hover);
+}
+
+.alert-warning {
+  background-color: rgba(246, 173, 85, 0.1);
+  border-left: 4px solid var(--warning-color);
+  color: var(--warning-hover);
+}
+
+/* Tablo Stilleri */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+  font-weight: 600;
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 14px;
+}
+
+.table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-200);
+  color: var(--gray-800);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.table tr:hover {
+  background-color: var(--gray-50);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Kullanıcı Bilgi Stilleri */
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.user-avatar i {
+  font-size: 1.1rem;
+  color: var(--gray-700);
+}
+
+/* Status Pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 6px;
+  margin-bottom: 5px;
+}
+
+.status-pill.active {
+  background-color: rgba(45, 206, 137, 0.15);
+  color: var(--success-hover);
+}
+
+.status-pill.inactive {
+  background-color: rgba(229, 62, 62, 0.15);
+  color: var(--danger-hover);
+}
+
+.status-pill.warning {
+  background-color: rgba(246, 173, 85, 0.15);
+  color: var(--warning-hover);
+}
+
+.status-pill i {
+  margin-right: 4px;
+  font-size: 10px;
+}
+
+/* Roles Container */
+.roles-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: #e0e0e0;
+  color: #333;
+  text-align: center;
+}
+
+/* Roller için ikonların ortalaması */
+.role-badge i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 3px;
+}
+
+.role-badge.admin {
+  background-color: #ffcdd2;
+  color: #c62828;
+}
+
+/* Seller rolü için özel stil */
+.role-badge.seller {
+  background-color: #bbdefb;
+  color: #1565c0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.action-buttons .btn-sm {
+  padding: 4px;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  transition: all 0.15s ease;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+}
+
+.action-buttons .btn-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.btn-sm i {
+  font-size: 12px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Yükleniyor ve Boş Durumlar */
+.loading-spinner, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.loading-spinner i, .empty-state i {
+  font-size: 2.5rem;
+  color: var(--gray-400);
+  margin-bottom: 1rem;
+}
+
+.loading-spinner span, .empty-state p {
+  color: var(--gray-600);
+  font-size: 15px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.py-4 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Sayfalama */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.pagination-info {
+  color: var(--gray-600);
+  font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 8px;
+}
+
+.page-item {
+  display: inline-block;
+}
+
+.page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.page-link:hover {
+  background-color: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.page-item.active .page-link {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.page-item.disabled .page-link {
+  color: var(--gray-400);
+  pointer-events: none;
+  background-color: var(--gray-100);
+  border-color: var(--gray-200);
+}
+
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.3s ease forwards;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.modal-header h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--gray-500);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  color: var(--danger-color);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-actions .btn-sm, 
+.modal-actions .btn-primary, 
+.modal-actions .btn {
+  padding: 8px 16px;
+  height: auto;
+  font-size: 13px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: auto;
+  transition: all 0.2s;
+}
+
+.modal-actions .btn-sm i {
+  margin-right: 8px;
+  font-size: 13px;
+}
+
+/* Modal içindeki statüs pilleri */
+.user-status .status-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Roller için badge stilleri modal içinde */
+.user-status .role-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+}
+
+/* User Details */
+.user-details {
+  animation: fadeIn 0.3s ease;
+}
+
+.user-detail-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.user-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background-color: var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar-large i {
+  font-size: 2rem;
+  color: var(--gray-700);
+}
+
+.user-basic-info {
+  flex: 1;
+}
+
+.user-basic-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.user-email {
+  color: var(--gray-600);
+  font-size: 1rem;
+  margin: 0 0 10px 0;
+}
+
+.user-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.user-status .status-pill {
+  margin: 0;
+}
+
+.user-detail-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.detail-section {
+  margin-bottom: 1.5rem;
+}
+
+.detail-section h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.detail-label {
+  width: 140px;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 14px;
+}
+
+.detail-value {
+  flex: 1;
+  color: var(--gray-800);
+  font-size: 14px;
+}
+
+/* Address Cards */
+.address-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.address-card {
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 15px;
+  transition: var(--transition);
+}
+
+.address-card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.address-title {
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.default-badge {
+  background-color: var(--success-color);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.address-content p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: var(--gray-700);
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+  color: var(--danger-color);
+}
+
+.error-message i {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.error-message p {
+  font-size: 1rem;
+}
+
+/* Animasyonlar */
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Duyarlı Tasarım */
+@media (max-width: 1200px) {
+  .admin-actions {
+    flex-wrap: wrap;
+  }
+  
+  .user-detail-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .admin-sidebar {
+    width: 80px;
+    z-index: 100;
+  }
+  
+  .admin-logo h2, 
+  .admin-user-details, 
+  .admin-menu li a span,
+  .admin-logout a span {
+    display: none;
+  }
+  
+  .admin-avatar {
+    margin-right: 0;
+  }
+  
+  .admin-user-info {
+    justify-content: center;
+    padding: 1rem 0.5rem;
+  }
+  
+  .admin-menu li {
+    margin: 4px 10px;
+  }
+  
+  .admin-menu li a {
+    padding: 1rem;
+    justify-content: center;
+  }
+  
+  .admin-menu li i {
+    margin-right: 0;
+    font-size: 1.3rem;
+  }
+  
+  .admin-logout {
+    padding: 1rem 0.5rem;
+    margin: 1rem 0.5rem;
+  }
+  
+  .admin-logout a {
+    padding: 1rem;
+    justify-content: center;
+  }
+  
+  .admin-logout i {
+    margin-right: 0;
+  }
+  
+  .admin-main {
+    margin-left: 80px;
+    padding: 1.5rem;
+  }
+  
+  .modal-content {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .admin-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .admin-search {
+    width: 100%;
+  }
+  
+  .admin-search input {
+    width: 100%;
+  }
+  
+  .btn, .btn-primary, .btn-warning {
+    width: 100%;
+  }
+  
+  .admin-form {
+    flex-direction: column;
+  }
+  
+  .pagination-container {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .user-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .user-avatar-large {
+    margin-bottom: 15px;
+  }
+  
+  .table th {
+    display: none;
+  }
+  
+  .table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 15px;
+    text-align: right;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  
+  .table td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--gray-700);
+    text-align: left;
+  }
+  
+  .table td:last-child {
+    border-bottom: none;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+  }
+  
+  .detail-label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .card-header {
+    padding: 1.25rem;
+  }
+  
+  .card-body {
+    padding: 1.25rem;
+  }
+  
+  .action-buttons {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .user-status {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions .btn, .modal-actions .btn-primary, .modal-actions .btn-sm {
+    width: 100%;
+  }
+}

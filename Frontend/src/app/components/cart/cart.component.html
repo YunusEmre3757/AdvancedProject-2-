@@ -1,0 +1,97 @@
+<div class="container">
+  <h1 class="page-title">Alışveriş Sepeti</h1>
+
+  <div *ngIf="cartItems.length === 0" class="empty-cart">
+    <mat-icon class="empty-cart-icon">shopping_cart</mat-icon>
+    <h2>Sepetiniz boş</h2>
+    <p>Alışverişe başlamak için ürünlerimize göz atın</p>
+    <button mat-raised-button color="primary" (click)="continueShopping()">ALIŞVERİŞE BAŞLA</button>
+  </div>
+
+  <div *ngIf="cartItems.length > 0" class="cart-content">
+    <table mat-table [dataSource]="cartItems" class="cart-table">
+      <!-- Image Column -->
+      <ng-container matColumnDef="image">
+        <th mat-header-cell *matHeaderCellDef> Ürün </th>
+        <td mat-cell *matCellDef="let item">
+          <img [src]="item.variant?.imageUrls && item.variant.imageUrls.length > 0 ? item.variant.imageUrls[0] : (item.product.imageUrl || 'assets/images/no-image.jpg')" [alt]="item.product.name" class="product-image"> 
+        </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> İsim </th>
+        <td mat-cell *matCellDef="let item"> 
+          {{item.product.name}} 
+          <span *ngIf="item.variant" class="variant-info">{{getVariantInfo(item)}}</span>
+        </td>
+      </ng-container>
+
+      <!-- Price Column -->
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef> Fiyat </th>
+        <td mat-cell *matCellDef="let item"> 
+          {{item.variant ? (item.variant.salePrice || item.variant.price) : (item.product.discountedPrice || item.product.price) | currency:'₺'}} 
+        </td>
+      </ng-container>
+
+      <!-- Quantity Column -->
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef> Adet </th>
+        <td mat-cell *matCellDef="let item"> 
+          <div class="quantity-selector">
+            <button mat-icon-button (click)="updateQuantity(item.product.id, item.quantity - 1, item.variant?.id)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span>{{item.quantity}}</span>
+            <button mat-icon-button (click)="updateQuantity(item.product.id, item.quantity + 1, item.variant?.id)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Total Column -->
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef> Toplam </th>
+        <td mat-cell *matCellDef="let item"> 
+          {{(item.variant ? (item.variant.salePrice || item.variant.price) : (item.product.discountedPrice || item.product.price)) * item.quantity | currency:'₺'}} 
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> İşlemler </th>
+        <td mat-cell *matCellDef="let item"> 
+          <button mat-icon-button color="warn" (click)="removeItem(item.product.id, item.variant?.id)" matTooltip="Sepetten Çıkar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Ara Toplam:</span>
+        <span>{{ totalPrice | currency:'₺' }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Kargo:</span>
+        <span>Ücretsiz</span>
+      </div>
+      <div class="summary-row total">
+        <span>Toplam:</span>
+        <span>{{ totalPrice | currency:'₺' }}</span>
+      </div>
+
+      <div class="cart-actions">
+        <button mat-stroked-button (click)="continueShopping()">ALIŞVERİŞE DEVAM ET</button>
+        <button mat-raised-button color="warn" (click)="clearCart()">SEPETİ TEMİZLE</button>
+        <button mat-raised-button color="primary" (click)="proceedToCheckout()">ÖDEMEYE GEÇ</button>
+      </div>
+    </div>
+  </div>
+</div> 

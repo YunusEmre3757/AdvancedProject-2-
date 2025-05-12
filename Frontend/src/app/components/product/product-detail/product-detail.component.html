@@ -1,0 +1,381 @@
+<div class="container">
+  <button mat-button (click)="goBack()" class="back-button">
+    <mat-icon>arrow_back</mat-icon> Geri
+  </button>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <mat-icon>error_outline</mat-icon> {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && product" class="product-detail">
+    <div class="product-image-gallery">
+      <div class="main-image">
+        <button class="carousel-control prev" (click)="previousImage()" *ngIf="currentVariantImages && currentVariantImages.length > 1">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        
+        <img #productImage [@addedToCart]="cartAnimationState" 
+             [src]="selectedImage || getProductImage()" 
+             [alt]="product.name"
+             loading="lazy">
+        
+        <button class="carousel-control next" (click)="nextImage()" *ngIf="currentVariantImages && currentVariantImages.length > 1">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      
+      <div class="carousel-pagination" *ngIf="currentVariantImages && currentVariantImages.length > 1">
+        <div *ngFor="let image of currentVariantImages; let i = index" 
+             class="pagination-dot" 
+             [class.active]="selectedImage === image"
+             (click)="selectImage(image)">
+        </div>
+      </div>
+      
+      <div class="thumbnail-carousel" *ngIf="currentVariantImages && currentVariantImages.length > 1">
+        <div class="thumbnail-container">
+          <div *ngFor="let imageUrl of currentVariantImages; let i = index" 
+               class="thumbnail" 
+               [class.active]="selectedImage === imageUrl"
+               (click)="selectImage(imageUrl)">
+            <img [src]="imageUrl" [alt]="product.name + ' - Image ' + i" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="showCartNotification" [@cartAnimation] class="cart-notification">
+      <div class="cart-notification-header">
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        <h3>Ürün Sepete Eklendi!</h3>
+        <button mat-icon-button (click)="closeCartNotification()" class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="cart-notification-content" *ngIf="lastAddedItem">
+        <div class="added-product-image">
+          <img [src]="adjustImageUrl(lastAddedItem.imageUrl) || 'assets/images/no-image.jpg'" [alt]="lastAddedItem.name" loading="lazy">
+        </div>
+        <div class="added-product-info">
+          <p class="added-product-name">{{ lastAddedItem.name }}</p>
+          <div *ngIf="selectedColor || selectedSize" class="added-product-variants">
+            <span *ngIf="selectedColor" class="variant-tag color-tag">
+              <span class="color-dot" [style.background-color]="selectedColor.code"></span>
+              {{ selectedColor.name }}
+            </span>
+            <span *ngIf="selectedSize" class="variant-tag">
+              {{ selectedSize.name }}
+            </span>
+          </div>
+          <div class="price-quantity-row">
+            <p class="added-product-price">
+              {{ getProductPrice() | currency:'₺' }}
+            </p>
+            <p class="added-product-quantity">
+              <mat-icon class="quantity-icon">inventory_2</mat-icon>
+              {{ quantity }} adet
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="cart-notification-actions">
+        <button mat-button (click)="closeCartNotification()">
+          <mat-icon>arrow_back</mat-icon>
+          Alışverişe Devam
+        </button>
+        <button mat-raised-button color="primary" (click)="goToCart()">
+          <mat-icon>shopping_cart</mat-icon> 
+          Sepete Git
+        </button>
+      </div>
+    </div>
+
+    <div class="product-info">
+      <h1>{{ product.name }}</h1>
+      
+      <div class="rating-section">
+        <div class="rating-preview" (click)="toggleReviews()">
+          <div class="rating">
+            <span *ngFor="let star of [1,2,3,4,5]">
+              <mat-icon>{{ star <= (product.rating || 0) ? 'star' : 'star_border' }}</mat-icon>
+            </span>
+            <span class="review-count" *ngIf="product.reviewCount">
+              ({{ product.reviewCount }} değerlendirme)
+            </span>
+            <mat-icon class="expand-icon">expand_more</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <div class="pricing">
+        <p class="price" [ngClass]="{'has-discount': getOriginalPrice()}">
+          {{ getProductPrice() | currency:'₺' }}
+        </p>
+        
+        <div *ngIf="getOriginalPrice()" class="discount">
+          <span class="original-price">{{ getOriginalPrice() | currency:'₺' }}</span>
+        </div>
+      </div>
+
+      <div class="product-variants-wrapper">
+        <ng-container *ngIf="variantConfig?.primaryAttr && !variantConfig?.secondaryAttr">
+          <div class="variant-section">
+            <div class="variant-title">
+              <span class="title">{{ variantConfig?.primaryAttr }}</span>
+              <span class="selected-value">{{ selectedSize?.name }}</span>
+            </div>
+            
+            <div class="size-options">
+              <button *ngFor="let size of availableSizes"
+                      class="size-button"
+                      [class.selected]="selectedSize?.id === size.id"
+                      (click)="selectSize(size)">
+                {{ size.name }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="isElectronicOrPhone">
+          <ng-container *ngFor="let attrName of getAvailableAttributeNames()">
+            <div class="variant-section" *ngIf="availableVariants.has(attrName) && availableVariants.get(attrName)?.length">
+              <div class="variant-title">
+                <span class="title">{{ attrName }}</span>
+                <span class="selected-value">{{ selectedVariants.get(attrName)?.name }}</span>
+              </div>
+              
+              <div class="color-options" *ngIf="attrName === 'Renk'">
+                <div *ngFor="let color of availableVariants.get(attrName)" 
+                     class="color-option" 
+                     [style.background-color]="color.code"
+                     [class.selected]="selectedVariants.get(attrName)?.id === color.id"
+                     [class.white-color]="color.code === '#ffffff' || color.code === 'white'"
+                     (click)="selectVariantOption(attrName, color)">
+                </div>
+              </div>
+              
+              <div class="size-options" *ngIf="attrName !== 'Renk'">
+                <button *ngFor="let option of availableVariants.get(attrName)"
+                        class="size-button"
+                        [class.selected]="selectedVariants.get(attrName)?.id === option.id"
+                        (click)="selectVariantOption(attrName, option)">
+                  {{ option.name }}
+                </button>
+              </div>
+            </div>
+          </ng-container>
+          
+          <div class="variant-section" *ngIf="!hasProcessedVariants() && availableSizes && availableSizes.length > 0">
+            <div class="variant-title">
+              <span class="title">Kapasite</span>
+              <span class="selected-value">{{ selectedSize?.name }}</span>
+            </div>
+            
+            <div class="size-options">
+              <button *ngFor="let size of availableSizes"
+                      class="size-button"
+                      [class.selected]="selectedSize?.id === size.id"
+                      (click)="selectSize(size)">
+                {{ size.name }}
+              </button>
+            </div>
+          </div>
+          
+          <div class="variant-section" *ngIf="!hasProcessedVariants() && availableColors && availableColors.length > 0">
+            <div class="variant-title">
+              <span class="title">Renk</span>
+              <span class="selected-value">{{ selectedColor?.name }}</span>
+            </div>
+            
+            <div class="color-options">
+              <div *ngFor="let color of availableColors" 
+                   class="color-option" 
+                   [style.background-color]="color.code"
+                   [class.selected]="selectedColor?.id === color.id"
+                   [class.white-color]="color.code === '#ffffff' || color.code === 'white'"
+                   (click)="selectColor(color)">
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        
+        <ng-container *ngIf="variantConfig?.primaryAttr === 'Renk' && variantConfig?.secondaryAttr === 'Boyut' && availableVariants.has('Malzeme')">
+          <div class="variant-section" *ngIf="availableColors && availableColors.length > 0">
+            <div class="variant-title">
+              <span class="title">Renk</span>
+              <span class="selected-value">{{ selectedColor?.name }}</span>
+            </div>
+            
+            <div class="color-options">
+              <div *ngFor="let color of availableColors" 
+                   class="color-option" 
+                   [style.background-color]="color.code"
+                   [class.selected]="selectedColor?.id === color.id"
+                   [class.white-color]="color.code === '#ffffff' || color.code === 'white'"
+                   (click)="selectColor(color)">
+              </div>
+            </div>
+          </div>
+          
+          <div class="variant-section" *ngIf="availableVariants.has('Malzeme')">
+            <div class="variant-title">
+              <span class="title">Malzeme</span>
+              <span class="selected-value">{{ selectedVariants.get('Malzeme')?.name }}</span>
+            </div>
+            
+            <div class="size-options">
+              <button *ngFor="let material of availableVariants.get('Malzeme')"
+                      class="size-button"
+                      [class.selected]="selectedVariants.get('Malzeme')?.id === material.id"
+                      (click)="selectVariantOption('Malzeme', material)">
+                {{ material.name }}
+              </button>
+            </div>
+          </div>
+          
+          <div class="variant-section" *ngIf="availableVariants.has('Boyut')">
+            <div class="variant-title">
+              <span class="title">Boyut</span>
+              <span class="selected-value">{{ selectedVariants.get('Boyut')?.name }}</span>
+            </div>
+            
+            <div class="size-options">
+              <button *ngFor="let size of availableVariants.get('Boyut')"
+                      class="size-button"
+                      [class.selected]="selectedVariants.get('Boyut')?.id === size.id"
+                      (click)="selectVariantOption('Boyut', size)">
+                {{ size.name }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+        
+        <ng-container *ngIf="!isElectronicOrPhone && variantConfig?.secondaryAttr && !(variantConfig?.primaryAttr === 'Renk' && variantConfig?.secondaryAttr === 'Boyut' && availableVariants.has('Malzeme'))">
+          <div class="variant-section" *ngIf="availableColors && availableColors.length > 0">
+            <div class="variant-title">
+              <span class="title">Renk</span>
+              <span class="selected-value">{{ selectedColor?.name }}</span>
+            </div>
+            
+            <div class="color-options">
+              <div *ngFor="let color of availableColors" 
+                   class="color-option" 
+                   [style.background-color]="color.code"
+                   [class.selected]="selectedColor?.id === color.id"
+                   [class.white-color]="color.code === '#ffffff' || color.code === 'white'"
+                   (click)="selectColor(color)">
+              </div>
+            </div>
+          </div>
+          
+          <div class="variant-section" *ngIf="availableSizes && availableSizes.length > 0">
+            <div class="variant-title">
+              <span class="title">{{ variantConfig?.secondaryAttr || 'Beden' }}</span>
+              <span class="selected-value">{{ selectedSize?.name }}</span>
+              
+              <button class="size-guide-button" (click)="openSizeGuide()">
+                <mat-icon>straighten</mat-icon>
+                <span>Beden Tablosu</span>
+              </button>
+            </div>
+            
+            <div class="size-options">
+              <button *ngFor="let size of availableSizes"
+                      class="size-button"
+                      [class.selected]="selectedSize?.id === size.id"
+                      (click)="selectSize(size)">
+                {{ size.name }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+        
+        <div class="stock-status" [ngClass]="getStockStatus().status">
+          <mat-icon *ngIf="getStockStatus().status === 'in-stock'">check_circle</mat-icon>
+          <mat-icon *ngIf="getStockStatus().status === 'low-stock'">warning</mat-icon>
+          <mat-icon *ngIf="getStockStatus().status === 'out-of-stock'">cancel</mat-icon>
+          
+          <span *ngIf="getStockStatus().status === 'in-stock'">Stokta</span>
+          <span *ngIf="getStockStatus().status === 'low-stock'" class="low-stock-text">
+            <strong>Son {{ getStockStatus().quantity }} ürün!</strong>
+          </span>
+          <span *ngIf="getStockStatus().status === 'out-of-stock'" class="out-of-stock-text">Tükendi</span>
+        </div>
+      </div>
+
+      <div class="product-actions">
+        <div class="quantity-selector" *ngIf="canAddToCart()">
+          <button mat-icon-button (click)="decrementQuantity()" [disabled]="quantity <= 1">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="quantity">{{ quantity }}</span>
+          <button mat-icon-button (click)="incrementQuantity()" [disabled]="quantity >= getStockStatus().quantity">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <button mat-raised-button color="primary" 
+                [disabled]="!canAddToCart()" 
+                (click)="addToCart()" 
+                class="add-to-cart-btn">
+          <mat-icon>shopping_cart</mat-icon> SEPETE EKLE
+        </button>
+
+        <button mat-raised-button [color]="isInFavorites ? 'warn' : 'basic'" (click)="toggleFavorite()" class="favorite-btn">
+          <mat-icon>{{ isInFavorites ? 'favorite' : 'favorite_border' }}</mat-icon> 
+          {{ isInFavorites ? 'FAVORİLERDEN ÇIKAR' : 'FAVORİLERE EKLE' }}
+        </button>
+      </div>
+
+      <p class="description">{{ product.description }}</p>
+
+      <div class="specifications" *ngIf="product.specifications">
+        <h3>Özellikler</h3>
+        <table>
+          <tr *ngFor="let spec of product.specifications | keyvalue">
+            <td>{{ spec.key }}</td>
+            <td>{{ spec.value }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="similarProducts.length > 0" class="similar-products-section">
+    <h2>Benzer Ürünler</h2>
+    
+    <div *ngIf="similarProductsLoading" class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+    
+    <div class="similar-products-grid">
+      <div *ngFor="let similarProduct of similarProducts" class="similar-product-card">
+        <img [src]="adjustImageUrl(similarProduct.imageUrl)" [alt]="similarProduct.name" class="similar-product-image">
+        <div class="similar-product-info">
+          <h3>{{ similarProduct.name }}</h3>
+          <div class="similar-product-price">
+            <span [class.on-sale]="similarProduct.discount">
+              {{ similarProduct.price | currency:'₺' }}
+            </span>
+            <span *ngIf="similarProduct.discount" class="discount-badge">
+              {{ similarProduct.discount }}% İndirim
+            </span>
+          </div>
+          <button mat-button color="primary" [routerLink]="['/products', similarProduct.id]">
+            İncele
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-spinner" *ngIf="loading">
+  Yükleniyor...
+</div> 

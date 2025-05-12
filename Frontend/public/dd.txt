@@ -1,0 +1,646 @@
+// API Base URL
+const apiUrl = 'http://localhost:8080/api';
+
+// ======================================
+// CATEGORY SERVICE
+// ======================================
+private categoryApiUrl = `${environment.apiUrl}/categories`;
+
+// Get all categories
+getCategories(): Observable<Category[]> {
+  return this.http.get<Category[]>(this.categoryApiUrl);
+}
+
+// Get subcategories by parent category ID
+getSubcategories(categoryId: number): Observable<Category[]> {
+  return this.http.get<Category[]>(`${this.categoryApiUrl}/${categoryId}/subcategories`);
+}
+
+// Get category hierarchy
+getCategoryHierarchy(): Observable<CategoryHierarchy[]> {
+  return this.http.get<CategoryHierarchy[]>(`${this.categoryApiUrl}/hierarchy`);
+}
+
+// Get root categories (for store application)
+getRootCategories(): Observable<Category[]> {
+  return this.http.get<Category[]>(`${this.categoryApiUrl}/root`);
+}
+
+// ======================================
+// BRAND SERVICE
+// ======================================
+private brandApiUrl = `${environment.apiUrl}/brands`;
+
+// Get brands with pagination
+getBrands(params: any): Observable<{ items: Brand[], total: number }> {
+  return this.http.get<{ items: Brand[], total: number }>(this.brandApiUrl, { params });
+}
+
+// Get brands by category
+getBrandsByCategory(categoryId: number): Observable<Brand[]> {  
+  return this.http.get<{ items: Brand[], total: number }>(`${environment.apiUrl}/categories/${categoryId}/brands`, httpOptions);
+}
+
+// Get brand by ID
+getBrand(id: number): Observable<Brand> {
+  return this.http.get<Brand>(`${this.brandApiUrl}/${id}`);
+}
+
+// ======================================
+// PRODUCT SERVICE
+// ======================================
+private productApiUrl = `${environment.apiUrl}/products`;
+
+// Get product by ID
+getProduct(id: number): Observable<Product> {
+  return this.http.get<Product>(`${this.productApiUrl}/${id}`);
+}
+
+// Get product by slug
+getProductBySlug(slug: string): Observable<Product> {
+  return this.http.get<Product>(`${this.productApiUrl}/slug/${slug}`);
+}
+
+// Update product stock
+updateProductStock(productId: number, stock: number): Observable<Product> {
+  return this.http.patch<Product>(`${this.productApiUrl}/${productId}/stock`, { stock });
+}
+
+// Search products with filters
+searchProducts(params: any): Observable<{ items: Product[], total: number }> {
+  return this.http.get<{ items: Product[], total: number }>(`${this.productApiUrl}/search`, { params });
+}
+
+// Add new product (for admin and seller)
+addProduct(product: any): Observable<Product> {
+  return this.http.post<Product>(`${this.productApiUrl}`, product);
+}
+
+// Upload product image
+uploadProductImage(productId: number, formData: FormData): Observable<any> {
+  return this.http.post<any>(`${this.productApiUrl}/${productId}/images`, formData);
+}
+
+// Get product attributes
+getProductAttributes(productId: number): Observable<ProductAttribute[]> {
+  return this.http.get<ProductAttribute[]>(`${this.productApiUrl}/${productId}/attributes`);
+}
+
+// Get new arrivals
+getNewArrivals(): Observable<Product[]> {
+  return this.http.get<Product[]>(`${this.productApiUrl}/new-arrivals`);
+}
+
+// Get best sellers
+getBestSellers(): Observable<Product[]> {
+  return this.http.get<Product[]>(`${this.productApiUrl}/best-sellers`);
+}
+
+// Get featured products
+getFeaturedProducts(): Observable<Product[]> {
+  return this.http.get<Product[]>(`${this.productApiUrl}/featured`);
+}
+
+// Get similar products
+getSimilarProducts(productId: number, limit: number = 4): Observable<Product[]> {
+  let params = new HttpParams().set('limit', limit.toString());
+  return this.http.get<Product[]>(`${this.productApiUrl}/${productId}/similar`, { params });
+}
+
+// Get popular searches
+getPopularSearches(limit: number = 5): Observable<{ text: string, count: number }[]> {
+  return this.http.get<{ text: string, count: number }[]>(`${this.productApiUrl}/popular-searches`, {
+    params: new HttpParams()
+      .set('limit', limit.toString())
+      .set('sort', 'count,desc')
+  });
+}
+
+// Increment search count
+incrementSearchCount(searchTerm: string): Observable<any> {
+  return this.http.post<any>(`${this.productApiUrl}/popular-searches/increment`, { term: searchTerm });
+}
+
+// ======================================
+// PRODUCT VARIANT SERVICE
+// ======================================
+
+// Get product variants
+getProductVariants(productId: number): Observable<ProductVariant[]> {
+  return this.http.get<ProductVariant[]>(`${environment.apiUrl}/products/${productId}/variants`);
+}
+
+// Update variant status
+updateVariantStatus(variantId: number, status: string): Observable<ProductVariant> {
+  return this.http.patch<ProductVariant>(`${environment.apiUrl}/products/variants/${variantId}/status`, { status });
+}
+
+// Upload variant image
+uploadVariantImage(productId: number, variantId: number, formData: FormData): Observable<any> {
+  return this.http.post<any>(`${environment.apiUrl}/products/${productId}/variants/${variantId}/images`, formData);
+}
+
+// ======================================
+// REVIEW SERVICE
+// ======================================
+private reviewsApiUrl = `${environment.apiUrl}/reviews`;
+
+// Check if user purchased the product
+checkPurchaseVerification(productId: number): Observable<boolean> {
+  return this.http.get<boolean>(`${this.reviewsApiUrl}/products/${productId}/verify-purchase`);
+}
+
+// Mark review as helpful
+markReviewAsHelpful(reviewId: number): Observable<void> {
+  return this.http.post<void>(`${this.reviewsApiUrl}/${reviewId}/helpful`, {});
+}
+
+// Unmark review as helpful
+unmarkReviewAsHelpful(reviewId: number): Observable<void> {
+  return this.http.delete<void>(`${this.reviewsApiUrl}/${reviewId}/helpful`);
+}
+
+// Add new review
+addReview(review: ReviewRequest): Observable<ReviewResponse> {
+  return this.http.post<ReviewResponse>(`${this.reviewsApiUrl}`, review);
+}
+
+// Get product review summary
+getProductReviewSummary(productId: number): Observable<ReviewSummary> {
+  return this.http.get<ReviewSummary>(`${this.reviewsApiUrl}/products/${productId}/summary`);
+}
+
+// ======================================
+// ORDER SERVICE
+// ======================================
+private orderApiUrl = `${environment.apiUrl}/orders`;
+
+// Cancel specific order item
+cancelOrderItem(orderId: number, itemId: number): Observable<Order> {
+  return this.http.patch<Order>(`${this.orderApiUrl}/${orderId}/items/${itemId}/cancel`, {});
+}
+
+// Cancel entire order
+cancelOrder(orderId: number): Observable<any> {
+  return this.http.patch(`${this.orderApiUrl}/${orderId}/cancel`, {});
+}
+
+// Get order details
+getOrderDetails(orderId: number): Observable<Order> {
+  return this.http.get<Order>(`${this.orderApiUrl}/${orderId}`);
+}
+
+// ======================================
+// CHECKOUT SERVICE
+// ======================================
+
+// Confirm payment
+confirmPayment(request: PaymentConfirmRequest): Observable<PaymentIntentResponse> {
+  return this.http.post<PaymentIntentResponse>(`${environment.apiUrl}/payments/confirm-payment`, request);
+}
+
+// ======================================
+// ADDRESS SERVICE
+// ======================================
+private adresApiUrl = `${environment.apiUrl}/adres`;
+
+// Get all provinces (iller)
+getAllIller(): Observable<Il[]> {
+  return this.http.get<Il[]>(`${this.adresApiUrl}/iller`);
+}
+
+// Get districts by province (ilçeler)
+getIlcelerByIl(ilId: number): Observable<Ilce[]> {
+  return this.http.get<Ilce[]>(`${this.adresApiUrl}/ilceler/${ilId}`);
+}
+
+// Get neighborhoods by district (mahalleler)
+getMahallelerByIlce(ilceId: number): Observable<Mahalle[]> {
+  return this.http.get<Mahalle[]>(`${this.adresApiUrl}/mahalleler/${ilceId}`);
+}
+
+// Add address for user
+addAdres(userId: number, request: AdresRequest): Observable<any> {
+  return this.http.post(`${this.adresApiUrl}/user/${userId}`, request);
+}
+
+// Get user addresses
+getUserAdresleri(userId: number): Observable<Adres[]> {
+  return this.http.get<Adres[]>(`${this.adresApiUrl}/user/${userId}`);
+}
+
+// Delete user address
+deleteAdres(userId: number, adresId: number): Observable<any> {
+  return this.http.delete(`${this.adresApiUrl}/user/${userId}/${adresId}`);
+}
+
+// ======================================
+// STORE SERVICE
+// ======================================
+private storeApiUrl = `${environment.apiUrl}/stores`;
+
+// Get all stores
+getStores(): Observable<Store[]> {
+  return this.http.get<Store[]>(this.storeApiUrl);
+}
+
+// Get store by ID
+getStoreById(id: string): Observable<Store> {
+  return this.http.get<Store>(`${this.storeApiUrl}/${id}`);
+}
+
+// Get store products
+getStoreProducts(storeId: string): Observable<Product[]> {
+  return this.http.get<Product[]>(`${this.storeApiUrl}/${storeId}/products`);
+}
+
+// Get seller's stores
+getMyStores(): Observable<Store[]> {
+  return this.http.get<Store[]>(`${this.storeApiUrl}/my-stores`);
+}
+
+// Get store orders
+getStoreOrders(storeId: number): Observable<Order[]> {
+  return this.http.get<Order[]>(`${this.storeApiUrl}/${storeId}`);
+}
+
+// Update order item status
+updateOrderItemStatus(storeId: number, orderId: number, itemId: number, status: string): Observable<Order> {
+  const standardizedStatus = this.standardizeStatus(status);
+  return this.http.patch<Order>(
+    `${this.storeApiUrl}/${storeId}/${orderId}/items/${itemId}/status`,
+    { status: standardizedStatus }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Search stores
+searchStores(query: string): Observable<Store[]> {
+  return this.http.get<any>(`${this.storeApiUrl}/search`, {
+    params: { q: query }
+  });
+}
+
+// ======================================
+// STORE APPLICATION SERVICE
+// ======================================
+
+// Submit store application
+submitStoreApplication(application: any): Observable<StoreApplication> {
+  return this.http.post<StoreApplication>(`${this.storeApiUrl}/applications`, application).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Withdraw store application
+withdrawStoreApplication(applicationId: string): Observable<StoreApplication> {
+  return this.http.post<StoreApplication>(`${this.storeApiUrl}/applications/${applicationId}/withdraw`, {});
+}
+
+// Get current user's applications
+getCurrentUserApplications(): Observable<StoreApplication[]> {
+  return this.http.get<StoreApplication[]>(`${this.storeApiUrl}/applications/me`);
+}
+
+// ======================================
+// SELLER SERVICE
+// ======================================
+private sellerApiUrl = `${environment.apiUrl}`;
+
+// Get seller stats
+getSellerStats(): Observable<SellerStats> {
+  return this.http.get<any>(`${this.sellerApiUrl}/store-orders/stats`);
+}
+
+// Get store stats
+getStoreStats(storeId: number | string): Observable<SellerStats> {
+  return this.http.get<any>(`${this.sellerApiUrl}/store-orders/store/${storeId}/stats`);
+}
+
+// Get all stores stats
+getAllStoresStats(): Observable<SellerStats[]> {
+  return this.http.get<any[]>(`${this.sellerApiUrl}/store-orders/stores/stats`);
+}
+
+// Get all store orders
+getAllMyStoresOrders(): Observable<Order[]> {
+  return this.http.get<Order[]>(`${this.sellerApiUrl}/my-stores`);
+}
+
+// Get revenue
+getRevenue(): Observable<any> {
+  return this.http.get<any>(`${this.sellerApiUrl}/store-orders/revenue`);
+}
+
+// Get product count
+getProductCount(): Observable<number> {
+  return this.http.get<number>(`${this.sellerApiUrl}/seller-products/count`);
+}
+
+// Add seller product
+addSellerProduct(product: any): Observable<Product> {
+  return this.http.post<Product>(`${environment.apiUrl}/products`, product);
+}
+
+// Update seller product
+updateSellerProduct(id: number, product: Partial<Product>): Observable<Product> {
+  return this.http.put<Product>(`${environment.apiUrl}/products/${id}`, product);
+}
+
+// Delete seller product
+deleteSellerProduct(id: number): Observable<void> {
+  return this.http.delete<void>(`${environment.apiUrl}/products/${id}`);
+}
+
+// Update seller product status
+updateSellerProductStatus(id: number, status: string): Observable<Product> {
+  return this.http.patch<Product>(`${environment.apiUrl}/seller/products/${id}/status`, { status });
+}
+
+// Get seller product variants
+getSellerProductVariants(productId: number): Observable<ProductVariant[]> {
+  return this.http.get<ProductVariant[]>(`${environment.apiUrl}/seller/products/${productId}/variants`);
+}
+
+// Add seller variant
+addSellerVariant(productId: number, variant: Omit<ProductVariant, 'id' | 'productId'>): Observable<ProductVariant> {
+  return this.http.post<ProductVariant>(`${environment.apiUrl}/products/${productId}/variants`, variant);
+}
+
+// Update seller variant
+updateSellerVariant(variantId: number, variant: Partial<ProductVariant>): Observable<ProductVariant> {
+  return this.http.put<ProductVariant>(`${environment.apiUrl}/seller/products/variants/${variantId}`, variant);
+}
+
+// Delete seller variant
+deleteSellerVariant(variantId: number): Observable<void> {
+  return this.http.delete<void>(`${environment.apiUrl}/seller/products/variants/${variantId}`);
+}
+
+// Update seller variant status
+updateSellerVariantStatus(variantId: number, status: string): Observable<ProductVariant> {
+  return this.http.patch<ProductVariant>(
+    `${environment.apiUrl}/seller/products/variants/${variantId}/status`,
+    { status }
+  );
+}
+
+// ======================================
+// ADMIN SERVICE
+// ======================================
+private adminApiUrl = `${environment.apiUrl}/admin`;
+private adminOrdersUrl = `${environment.apiUrl}/admin/orders`;
+
+// --- User Management ---
+
+// Delete user
+deleteUser(userId: number): Observable<any> {
+  return this.http.delete<any>(`${this.adminApiUrl}/users/${userId}`);
+}
+
+// Toggle user status (active/inactive)
+toggleUserStatus(email: string, isActive: boolean): Observable<User> {
+  return this.http.patch<User>(`${this.adminApiUrl}/users/status`, { email, isActive });
+}
+
+// Get user by ID
+getUserById(id: number): Observable<User> {
+  return this.http.get<User>(`${this.adminApiUrl}/users/${id}`);
+}
+
+// Remove admin role from user
+removeAdminRole(email: string): Observable<User> {
+  return this.http.delete<User>(`${this.adminApiUrl}/users/role/admin`, {
+    body: { email }
+  });
+}
+
+// Remove seller role from user
+removeSellerRole(email: string): Observable<User> {
+  return this.http.delete<User>(`${this.adminApiUrl}/users/role/seller`, {
+    body: { email }
+  });
+}
+
+// Grant seller role to user
+grantSellerRole(email: string): Observable<User> {
+  return this.http.post<User>(`${this.adminApiUrl}/users/role/seller`, { email });
+}
+
+// Grant admin role to user
+grantAdminRole(email: string): Observable<User> {
+  return this.http.post<User>(`${this.adminApiUrl}/users/role/admin`, { email });
+}
+
+// Search users
+searchUsers(query: string, page: number = 0, size: number = 10): Observable<any> {
+  return this.http.get<any>(`${this.adminApiUrl}/users/search`);
+}
+
+// --- Store Management ---
+
+// Update store status
+updateStoreStatus(storeId: number, status: string): Observable<any> {
+  return this.http.patch<any>(`${this.adminApiUrl}/stores/${storeId}/status`, { status });
+}
+
+// Delete store and related data
+deleteStore(storeId: number): Observable<any> {
+  return this.http.delete<any>(`${this.adminApiUrl}/stores/${storeId}`);
+}
+
+// Set store inactive
+setStoreInactive(storeId: number): Observable<any> {
+  return this.http.patch<any>(`${this.adminApiUrl}/stores/${storeId}/set-inactive`, {});
+}
+
+// Unban store
+unbanStore(storeId: number): Observable<any> {
+  return this.http.patch<any>(`${this.adminApiUrl}/stores/${storeId}/unban`, {});
+}
+
+// Ban store
+banStore(storeId: number): Observable<any> {
+  return this.http.patch<any>(`${this.adminApiUrl}/stores/${storeId}/ban`, {});
+}
+
+// Update store application status
+updateStoreApplication(id: number, status: string): Observable<StoreApplication> {
+  return this.http.patch<StoreApplication>(
+    `${this.adminApiUrl}/store-applications/${id}`, 
+    { status });
+}
+
+// Get store applications
+getStoreApplications(): Observable<StoreApplication[]> {
+  return this.http.get<StoreApplication[]>(`${this.adminApiUrl}/store-applications`);
+}
+
+// Get all stores (all statuses)
+getAllStores(): Observable<Store[]> {
+  return this.http.get<Store[]>(`${environment.apiUrl}/admin/stores/all`);
+}
+
+// --- Product Management (Admin) ---
+
+// Delete variant
+deleteVariant(variantId: number): Observable<void> {
+  return this.http.delete<void>(`${environment.apiUrl}/admin/products/variants/${variantId}`);
+}
+
+// Update product status
+updateProductStatus(id: number, status: string): Observable<Product> {
+  return this.http.patch<Product>(`${environment.apiUrl}/admin/products/${id}/status`, { status });
+}
+
+// Delete product
+deleteProduct(id: number): Observable<void> {
+  return this.http.delete<void>(`${environment.apiUrl}/admin/products/${id}`);
+}
+
+// Update product
+updateProduct(id: number, product: any): Observable<Product> {
+  return this.http.put<Product>(`${environment.apiUrl}/admin/products/${id}`, product);
+}
+
+// Get admin products
+getAdminProducts(params: any): Observable<{ items: Product[], total: number }> {
+  return this.http.get<{ items: Product[], total: number }>(`${environment.apiUrl}/products/admin`, { params });
+}
+
+// Add variant (admin)
+addVariant(productId: number, variant: any): Observable<ProductVariant> {
+  return this.http.post<ProductVariant>(`${environment.apiUrl}/admin/products/${productId}/variants`, variant);
+}
+
+// Update variant (admin)
+updateVariant(variantId: number, payload: any): Observable<ProductVariant> {
+  return this.http.put<ProductVariant>(`${environment.apiUrl}/admin/products/variants/${variantId}`, payload);
+}
+
+// Get variants (admin)
+getAdminVariants(productId: number): Observable<ProductVariant[]> {
+  return this.http.get<ProductVariant[]>(`${environment.apiUrl}/admin/products/${productId}/variants`);
+}
+
+// --- User Verification ---
+
+// Resend verification email
+resendVerificationEmail(userId: number): Observable<any> {
+  return this.http.post(`${this.adminApiUrl}/verification/${userId}/resend-verification`, {});
+}
+
+// Reject pending user
+rejectPendingUser(userId: number): Observable<any> {
+  return this.http.delete(`${this.adminApiUrl}/verification/reject/${userId}`);
+}
+
+// Approve pending user
+approvePendingUser(userId: number): Observable<any> {
+  return this.http.post(`${this.adminApiUrl}/verification/approve/${userId}`, {});
+}
+
+// Search pending users
+searchPendingUsers(params: any): Observable<any> {
+  return this.http.get(`${this.adminApiUrl}/verification/search-pending-users`, { params });
+}
+
+// Get pending users
+getPendingUsers(params: any): Observable<any> {
+  return this.http.get(`${this.adminApiUrl}/verification/pending-users`, { params });
+}
+
+// --- Order Management ---
+
+// Update order status (admin)
+updateOrderStatus(orderId: number, status: string): Observable<Order> {
+  return this.http.patch<Order>(`${this.adminOrdersUrl}/${orderId}/status`, { status });
+}
+
+// Delete order (admin)
+deleteOrder(orderId: number): Observable<any> {
+  return this.http.delete<any>(`${this.adminOrdersUrl}/${orderId}`);
+}
+
+// Update tracking number
+updateTrackingNumber(orderId: number, trackingNumber: string): Observable<Order> {
+  return this.http.patch<Order>(`${environment.apiUrl}/orders/${orderId}/tracking`, { trackingNumber });
+}
+
+// Search orders (admin)
+searchOrders(params: any): Observable<Order[]> {
+  return this.http.get<Order[]>(`${this.adminOrdersUrl}/search`, { params });
+}
+
+// Get all orders (admin)
+getAllOrders(params: any): Observable<Order[]> {
+  return this.http.get<Order[]>(this.adminOrdersUrl, { params });
+}
+
+// --- Dashboard Stats ---
+
+// Get dashboard stats
+getDashboardStats(): Observable<DashboardStats> {
+  return this.http.get<DashboardStats>(`${this.adminApiUrl}/stats`);
+}
+
+// ======================================
+// AUTH AND USER SERVICE
+// ======================================
+private authApiUrl = `${environment.apiUrl}/auth`;
+private userApiUrl = `${environment.apiUrl}/users`;
+
+// Store login
+storeLogin(credentials: { email: string; password: string; type: string }): Observable<AuthResponse> {
+  return this.http.post<AuthResponse>(`${this.authApiUrl}/store-login`, credentials);
+}
+
+// Update password
+updatePassword(request: UpdatePasswordRequest): Observable<User> {
+  return this.http.post<User>(`${this.authApiUrl}/change-password`, request);
+}
+
+// Update profile
+updateProfile(updateData: UpdateProfileRequest): Observable<User> {
+  return this.http.put<User>(`${this.userApiUrl}/profile`, updateData);
+}
+
+// Delete account
+deleteAccount(): Observable<void> {
+  return this.http.delete<void>(`${this.userApiUrl}/account`).pipe(
+    tap(() => this.clearAuthData())
+  );
+}
+
+// ======================================
+// VERIFICATION SERVICE
+// ======================================
+private verificationApiUrl = `${environment.apiUrl}/verification`;
+
+// Register with verification
+registerWithVerification(request: RegisterWithVerificationRequest): Observable<VerificationResponse> {
+  return this.http.post<VerificationResponse>(`${this.verificationApiUrl}/register`, request);
+}
+
+// Resend verification email
+resendVerificationEmail(email: string): Observable<VerificationResponse> {
+  return this.http.post<VerificationResponse>(`${this.verificationApiUrl}/resend-registration`, { email });
+}
+
+// Verify email
+verifyEmail(token: string): Observable<VerificationResponse> {
+  return this.http.get<VerificationResponse>(`${this.verificationApiUrl}/verify-email?token=${token}`);
+}
+
+// Check verification status
+checkVerificationStatus(email: string): Observable<VerificationResponse> {
+  return this.http.get<VerificationResponse>(`${this.verificationApiUrl}/check-status?email=${email}`);
+}
+
+// Request password reset
+requestPasswordReset(email: string): Observable<void> {
+  return this.http.post<void>(`${this.authApiUrl}/request-password-reset`, { email });
+}
+
+
